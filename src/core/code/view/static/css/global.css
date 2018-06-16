@@ -1,0 +1,60 @@
+body{margin:0; padding:0;}
+
+@font-face {
+  font-family: 'Glyphicons Halflings';
+
+  src: url('/static//glyphicons-halflings-regular.eot');
+  src: url('/static/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), 
+       url('/static/glyphicons-halflings-regular.woff2') format('woff2'), 
+       url('/static/glyphicons-halflings-regular.woff') format('woff'), 
+       url('/static/glyphicons-halflings-regular.ttf') format('truetype'), 
+       url('/static/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
+} 
+
+.nav a:hover{
+   background-color:red;
+}
+
+.from-login-div{
+	margin-left:auto;
+	margin-right: auto;
+}
+
+.table.table-hover tr:hover > td {
+  background: #f8f8f8;
+}
+
+.main-body{
+	color:#333333;
+	background-color: #E4E4E4;
+}
+.navbar .container-fluid{
+	background-color: hsl(220,20%,30%);
+}
+
+
+.navbar .nav li{
+	margin-right: 10px
+}
+
+.navbar .nav > li .dropdown-menu{
+	background-color: hsl(220,20%,30%);
+}
+.navbar .nav > li > a{
+    color: white;
+}
+.navbar .nav .dropdown .dropdown-menu > li > a{
+	color:white;
+}
+
+@media (min-width: 980px){
+   .from-login-div{width:400px;}
+}
+@media (max-width: 980px) {
+    .from-login-div{width:400px;}
+ }
+@media (max-width: 480px) { 
+	.from-login-div{width:280px;}
+	.style2 {margin-left:auto }
+ }
+

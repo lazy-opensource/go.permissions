@@ -1,0 +1,118 @@
+  
+
+   <!-- 导航nav start-->
+   <nav class="navbar navbar-default" role="navigation">
+     <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse"
+                  data-target="#example-navbar-collapse">
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+          </button>
+          
+          <ul class="nav navbar-nav">
+                 <li class="active style2"><a href="#" class="navbar-brand">首页</a></li>
+          </ul>
+      </div>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#" id="user"> </a></li>
+        <li><a href="/system/logout"><span class="  glyphicon glyphicon-off"></span>&nbsp;退出</a></li>
+      </ul>
+       <div class="collapse navbar-collapse" id="example-navbar-collapse">
+            <ul class="nav navbar-nav style1 "> 
+            
+              
+                 
+            </ul>
+        </div>
+      </div>
+    </nav>
+    <!-- 导航nav end -->
+
+    
+    <form action="/system/toIndex" method="POST" id="getChildFrom">
+
+        <input type='hidden' name="parentId" id="parentId"/>
+        <input type='hidden' name="parentName" id="parentName"/>
+    </form>
+
+   
+   <script type ="text/javascript">
+       $(document).ready(function(){
+            $.get(
+              "/system/getOneMenu",
+              function(_data){
+                 if (_data){
+                    var data = $.parseJSON(_data);
+                    var data1 = $(data.rows);
+                    var username = $(data.name);
+                    $('#user').html('<span class="glyphicon glyphicon-user"></span> &nbsp;'+ username.selector);
+                    var data2 = data1[0];
+                    var temp1 = 0;
+                    var data3 , str ;
+                    for (i in data2){
+                      //console.info(data2[i])
+                      temp1++;
+                      if (i < 4 ){
+
+                       // debugger;
+                          str = "";
+                          data3 = data2[i]
+                          str = "";
+                           str =str + '<li class="divider"><a href="javascript:getChildMenuByParentId('
+                                       + "'"
+                                       + data3.Name
+                                       + "'"
+                                       + ','
+                                       + "'"
+                                       + data3.Id
+                                       + "'"
+                                       + ')" class="navbar-brand">'
+                                       + data3.Name
+                                       + '</a></li>';
+                                   //console.info(str)
+                         $('ul.style1').append(str);
+                      }
+                    }
+
+                    if (temp1 > 4){
+                      str = '<li class="dropdown"><a class="dropdown-toggle navbar-brand" data-toggle="dropdown" href="#">更多<span class="caret"></span></a><ul class="dropdown-menu">';
+
+
+                      for (i in data2){
+                        if (i > 3){
+                         // debugger;
+                           data3 = data2[i]
+                           str =str + '<li><a href="javascript:getChildMenuByParentId('
+                                       + "'"
+                                       + data3.Name
+                                       + "'"
+                                       + ','
+                                       + "'"
+                                       + data3.Id
+                                       + "'"
+                                       + ')" class="navbar-brand">'
+                                       + data3.Name
+                                       + '</a></li>';
+                                      
+                        }
+                        
+                      }
+                      str = str + '</ul></li>'
+                      //console.info(str)
+                      $('ul.style1').append(str);
+                    }
+                  }
+            
+            })
+       })
+     
+
+   function getChildMenuByParentId(parentName , parentId){
+
+        $('#parentId').val(parentId);
+        $('#parentName').val(parentName);
+        $('#getChildFrom').submit();
+    }
+    </script>

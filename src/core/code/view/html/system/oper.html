@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link type="text/css" href="/static/bootstrap.min.css" rel="stylesheet">
+    <link type="text/css" href="/static/bootstrap-theme.min.css" rel="stylesheet">
+    <link type="text/css" href="/static/jquery.dataTables.min.css" rel="stylesheet">
+    <link type="text/css" href="/static/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link type="text/css" href="/static/dataTables.jqueryui.min.js" rel="stylesheet">
+    <link type="text/css" href="/static/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <link type="text/css" href="/static/bootstrap-treeview.min.css" rel="stylesheet">
+    <link type="text/css" href="/static/global.css" rel="stylesheet">
+    <script type="text/javascript" src="/static/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="/static/dataTables.bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="/static/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script type="text/javascript" src="/static/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="/static/bootbox.min.js"></script>
+    <script type="text/javascript" src="/static/menuTreeview.js"></script>
+    <script type="text/javascript" src="/static/bootstrap-treeview.min.js"></script>
+  </head>
+  
+  <body>
+    <input type="hidden" id="hidden-id">
+    <input type="hidden" id="parentMenuId" value="{{.}}">
+    <div class="container-fluid">
+      <div class="page-header">
+        <h4>
+          <b>操作管理</h4>
+      </div>
+      <div class="row">
+        <div class="col-sm-10">
+          <div class="box">
+            <div class="box-content nopadding y_tableser">
+              <div class="form-inline table_formnew">
+                <div class="form-group">
+                  <label class="control-label">操作名称：</label>
+                  <input type="text" id="Name" class="form-control">
+                  <input type="hidden" id="Name_q" class="form-control" value="LIKE"></div>
+                <div class="form-group">
+                  <label class="control-label">所属菜单：</label>
+                  <select id="MenuId" name='menu' class="form-control">
+                    <option value=''>--请选择--</option></select>
+                  <input type="hidden" id="MenuId_q" class="form-control" value="EQ"></div>
+                <div class="form-group">
+                  <label class="control-label">创建时间：</label>
+                  <input type="text" id="CreateTimeS" class="form-control form_datetime ">-
+                  <input type="text" id="CreateTimeE" class="form-control form_datetime">
+                  <input type="hidden" id="CreateTimeS_q" class="form-control" value="GT">
+                  <input type="hidden" id="CreateTimeE_q" class="form-control" value="LT"></div>
+                <div class="form-group">
+                  <label class="control-label">修改时间：</label>
+                  <input type="text" id="UpdateTimeS" class="form-control form_datetime ">-
+                  <input type="text" id="UpdateTimeE" class="form-control form_datetime">
+                  <input type="hidden" id="UpdateTimeS_q" class="form-control" value="GT">
+                  <input type="hidden" id="UpdateTimeE_q" class="form-control" value="LT"></div>
+                <div class="form-group" id="oper-btn">
+                  <button class="btn btn-primary search" title="查询" rel="tooltip">查询</button>
+                  <button class="btn btn-default" onclick="javascript:clearSearch();" title="清空" rel="tooltip">清空</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover table-nomargin table-striped dataTable dataTable-reorder" id="user_list_table">
+          <thead>
+            <tr>
+              <th class='with-checkbox'>
+                <input type="checkbox" name="check_all" id="check_all"></th>
+              <th width="15%"></th>
+              <th width="15%"></th>
+              <th width="15%"></th>
+              <th width="15%"></th>
+              <th width="20%"></th>
+              <th width="15%"></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <!-- edit model start -->
+      <form id="operForm">
+        <div class="modal fade" id="operModel" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">×</span></button>
+                <h4 class="modal-title" id="operModalLabel">新增</h4></div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <label for="name" class="col-sm-4 control-label">操作名称：</label>
+                  <input type="text" class="form-control" name="name" id="name" placeholder="操作名称"></div>
+                <div class="form-group">
+                  <label for="url" class="col-sm-2 control-label">URL:</label>
+                  <input type="text" class="form-control" name="url" id="url" placeholder="自定义URL"></div>
+                <div class="form-group">
+                  <label for="remark" class="col-sm-2 control-label">备注：</label>
+                  <input type="text" class="form-control" name="remark" id="remark" placeholder="备注"></div>
+              </div>
+              <div class="modal-footer">
+                <a class="btn btn-default" href="javascript:clear();" title="清空" rel="tooltip">清空</a>
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="save">保存</button></div>
+            </div>
+          </div>
+        </div>
+      </form>
+      <!-- edit model end -->
+      <!-- message model start -->
+      <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">成功</h4></div>
+            <div class="modal-body" id="success"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button></div>
+          </div>
+        </div>
+      </div>
+      <!-- message model end -->
+      <!-- menu model start -->
+      <div class="modal fade" id="menuModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">所属菜单详情</h4></div>
+            <div class="modal-body">
+              <div class="form-group">
+                <h4>
+                  <b>所属菜单:</b>
+                </h4>
+                <span id='menu'></span>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button></div>
+          </div>
+        </div>
+      </div>
+      <!-- menu model end -->
+      <!-- menu model start -->
+      <div class="modal fade" id="menusModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">关联菜单</h4></div>
+            <div class="modal-body">
+              <div id='tree'></div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" id='contactMenu'>关联</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal" onclick="javascript:init();">取消</button></div>
+          </div>
+        </div>
+      </div>
+      <!-- menu model end --></div>
+    <script type="text/javascript">
+
+
+      $(document).ready(function(){
+        init();
+      })
+
+      function init(){
+        initTree();
+      }
+
+
+      //条件查找
+      $('.search').click(function() {
+        query('seach');
+      });
+
+      //全选
+      $("#check_all").click(function(e) {
+        $('input', table.fnGetNodes()).prop('checked', this.checked);
+      });
+
+      //日历控件
+      $('.form_datetime').datetimepicker({
+        language: 'zh-CN',
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        todayHighlight: 1,
+        startView: 2,
+        forceParse: 0,
+        showMeridian: 1,
+        format: 'yyyy-mm-dd hh:mm:ss',
+        autoclose: false,
+        todayBtn: false,
+        pickerPosition: "bottom-top"
+      });
+
+      function toContactMenu() {
+        var ids = '';
+        $('input[name="check"]:checkbox').each(function() {
+
+          if ($(this).is(':checked')) {
+
+            ids = ids + $(this).val() + ','
+          }
+        })
+
+        var arr = new Array(0);
+        if (ids != '') {
+          ids = ids.substring(0, ids.length - 1);
+          arr = ids.split(',');
+          //alert(arr.length);
+        }
+
+        if (arr.length > 1 || arr.length == 0) {
+          bootbox.alert('请选择一项进行操作！');
+          return;
+        }
+
+        $('#hidden-id').val(arr[0]);
+        
+        $.post('/system/oper/getOperById', {
+          id: arr[0]
+        },
+        function(_data) {
+
+          setOperMenuNodeSelect(_data[0].MenuId);
+          $('#contactMenu').attr('onclick', 'javascript:contactMenu();');
+          $('#menusModal').modal('show', true);
+        },
+        'json')
+
+      }
+
+      function contactMenu() {
+
+        var node = getSelectNode()[0];
+        var pid = node.id;
+        var id = $('#hidden-id').val();
+
+        $.post('/system/oper/contactMenu', {
+          id: id,
+          pid: pid
+        },
+        function(_data) {
+          $('#menusModal').modal('hide');
+          operSuccess(_data);
+        },
+        'json')
+
+        //console.info(node);
+      }
+
+      function details(pid) {
+      
+        $.post('/system/menu/getMenuById', {
+          id: pid
+        },
+        function(_data) {
+
+          //console.info(_data);
+          var data = $.parseJSON(_data);
+          $('#menu')[0].style = 'color:red';
+
+          $('#menu').html('未关联任何菜单');
+          for (i in data) {
+
+            $('#menu')[0].style = 'color:gray';
+
+            $('#menu').html(data[0].Name);
+          }
+          $('#menuModal').modal('show', true);
+        })
+      }
+
+      //to add
+      function toAdd() {
+        clear();
+        $('#operModalLabel').html('新增');
+        $('#url').attr('disabled',false);
+        $('#save').attr('onclick', 'javascript:add();');
+        $('#operModel').modal('show', true);
+      }
+
+      function add() {
+        submitForm('add');
+      }
+
+      //edit
+      function toEdit() {
+        clear();
+
+        var ids = '';
+        $('input[name="check"]:checkbox').each(function() {
+
+          if ($(this).is(':checked')) {
+
+            ids = ids + $(this).val() + ','
+          }
+        })
+
+        var arr = new Array(0);
+        if (ids != '') {
+          ids = ids.substring(0, ids.length - 1);
+          arr = ids.split(',');
+          //alert(arr.length);
+        }
+
+        if (arr.length > 1 || arr.length == 0) {
+          bootbox.alert('请选择一项进行操作！');
+          return;
+        }
+
+        $('#operModalLabel').html('编辑');
+        $('#operModel').modal('show', true);
+        $('#save').attr('onclick', 'javascript:edit();');
+        $('#url').attr('disabled',true);
+        $.post('/system/oper/getOperById', {
+          id: arr[0]
+        },
+        function(_data) {
+          isTimeOut(_data);
+
+          if (_data) {
+            var name = _data[0].Name;
+            var id = _data[0].Id;
+            var remark = _data[0].Remark;
+            var url = _data[0].Url;
+
+            $('#name').val(name);
+            $('#remark').val(remark);
+            $('#url').val(url);
+            $('#hidden-id').val(id);
+          }
+        },
+        'json')
+      }
+
+      //edit
+      function edit() {
+        submitForm('edit');
+      }
+
+      //del
+      function del() {
+        var ids = '';
+
+        $('input[name="check"]:checkbox').each(function() {
+          if ($(this).is(':checked')) {
+            ids = ids + $(this).val() + ',';
+          }
+        })
+
+        var arr = new Array(0);
+        if (ids != '') {
+          ids = ids.substring(0, ids.length - 1);
+          arr = ids.split(',');
+        }
+
+        if (arr.length == 0) {
+          bootbox.alert('至少选择一项进行操作!');
+          return;
+        }
+
+        bootbox.confirm('确认删除' + arr.length + '条数据吗?',
+        function(r) {
+          if (r) {
+            $.post('/system/oper/del', {
+              ids: ids
+            },
+            function(_data) {
+              operSuccess(_data);
+            },
+            'json')
+
+          }
+        })
+      }
+
+      function clear() {
+        $('#name').val('');
+        $('#url').val('');
+        $('#remark').val('');
+      }
+
+      //初始化
+      $(document).ready(function() {
+
+        var validataParam = {
+          rules: {
+            name: {
+              required: true
+            },
+            url: {
+              required: true
+            }
+          },
+          messages: {
+            name: {
+              required: $.format('该项不能为空!')
+            },
+            url: {
+              required: $.format('该项不能为空!')
+            }
+          },
+          submitHandler: function(form) {
+            return false;
+          }
+        };
+
+        $('#operForm').validate(validataParam);
+        getOper();
+        query('inittable');
+        getMenus();
+
+      })
+
+      function getMenus() {
+
+        //$('#MenuId').empty();
+        $.post('/system/menu/list',
+        function(_data) {
+          // console.info(_data);
+          for (i in _data) {
+            var data = _data[i];
+            var opt = new Option();
+            opt.value = data.Id;
+            opt.text = data.Name;
+            $('#MenuId').append(opt);
+          }
+        },
+        'json')
+      }
+
+      function submitForm(action) {
+
+        var isOk = $('#operForm').valid();
+
+        if (!isOk) {
+          return;
+        }
+
+        if (action == 'add') {
+          var name = $('#name').val();
+          var url = $('#url').val();
+          var remark = $('#remark').val();
+
+          $.post('/system/oper/add', {
+            name: name,
+            url: url,
+            remark: remark
+          },
+          function(_data) {
+            operSuccess(_data);
+          },
+          'json')
+        }
+
+        if (action == 'edit') {
+          var name = $('#name').val();
+          var url = $('#url').val();
+          var remark = $('#remark').val();
+          var id = $('#hidden-id').val();
+
+          $.post('/system/oper/edit', {
+            id: id,
+            name: name,
+            url: url,
+            remark: remark
+          },
+          function(_data) {
+            operSuccess(_data);
+          },
+          'json')
+        }
+      }
+
+      function operSuccess(_data) {
+        isTimeOut(_data);
+
+        $('#successModal').modal('show', true);
+        if (_data) {
+          $('#success').html('成功操作' + _data + '条数据!');
+        } else {
+          $('#success').html('操作失败!');
+        }
+
+        $('#operModel').modal('hide');
+        table.fnDraw();
+      }
+
+      var table = null;
+      var opers;
+
+      //获得操作权限
+      function getOper() {
+        var parentMenuId = $('#parentMenuId').val();
+        $.post('/system/getCurrentMenuOper', {
+          parentMenuId: parentMenuId
+        },
+        function(_data) {
+          if (_data) {
+            var arr = [];
+            for (i in _data) {
+              o = new SysOper('', _data[i].Name, _data[i].Url);
+              arr[i] = o;
+            }
+            var temp = '';
+            opers = arr;
+            if (opers) {
+              //console.info(opers);
+              $(opers).each(function() {
+                temp = temp + '<a class="btn btn-default" title="' + this.name + '" href="' + this.url + '">' + this.name + '</a>';
+              });
+              // console.info(temp);
+              $('#oper-btn').append(temp);
+            }
+          }
+
+        },
+        'json')
+      }
+
+      //定义表格字段和数据源
+      function query(tag) {
+        if (table == null) {
+          if ($('.dataTable').length > 0) {
+            $('.dataTable').each(function() {
+              var opt = {
+                "bProcessing": true,
+                //DataTables载入数据时，是否显示‘进度’提示  
+                "bServerSide": true,
+                //是否启动服务器端数据导入  
+                "bStateSave": true,
+                //是否打开客户端状态记录功能,此功能在ajax刷新纪录的时候不会将个性化设定回复为初始化状态  
+                "bJQueryUI": true,
+                //是否使用 jQury的UI theme    
+                "aLengthMenu": [5, 10, 20, 40, 60],
+                //更改显示记录数选项  
+                "iDisplayLength": 10,
+                //默认显示的记录数  
+                "bAutoWidth": true,
+                //是否自适应宽度  
+                //"bScrollInfinite" : false, //是否启动初始化滚动条  
+                "bScrollCollapse": true,
+                //是否开启DataTables的高度自适应，当数据条数不够分页数据条数的时候，插件高度是否随数据条数而改变  
+                "bPaginate": true,
+                //是否显示（应用）分页器  
+                "bInfo": true,
+                //是否显示页脚信息，DataTables插件左下角显示记录数  
+                "sPaginationType": "full_numbers",
+                //详细分页组，可以支持直接跳转到某页  
+                "bSort": true,
+                //是否启动各个字段的排序功能  
+                "aaSorting": [[1, "asc"]],
+                //默认的排序方式，第2列，升序排列  
+                "bFilter": true,
+                //是否启动过滤、搜索功能  
+
+                "oLanguage": { //国际化配置  
+                  "sProcessing": "正在获取数据，请稍后...",
+                  "sLengthMenu": "显示 _MENU_ 条",
+                  "sZeroRecords": "没有您要搜索的内容",
+                  "sInfo": "从 _START_ 到  _END_ 条记录 总记录数为 _TOTAL_ 条",
+                  "sInfoEmpty": "记录数为0",
+                  "sInfoFiltered": "(全部记录数 _MAX_ 条)",
+                  "sInfoPostFix": "",
+                  "sSearch": "查询",
+
+                  "oPaginate": {
+                    "sFirst": "第一页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "最后一页"
+                  }
+                },
+                'sDom': "rtlip",
+                'aoColumnDefs': [{
+                  'bSortable': false,
+                  'aTargets': [0, 1, 2, 3]
+                }],
+
+                "aoColumns": [{
+                  "mDataProp": "checkbox",
+                  "sDefaultContent": "",
+                  'bSortable': false,
+                  "fnRender": function(obj) {
+
+                    if (obj.aData.oper != 'sys'){
+                    var sReturn = "<input  type='checkbox' name='check' value='" + obj.aData.id + "' style='margin-left:12px'/>";
+                    return sReturn;
+                     }
+                  }
+                },
+                {
+                  "mDataProp": "name",
+                  "sTitle": "操作名称",
+                  "sDefaultContent": "",
+                  "sClass": "center"
+                },
+                {
+                  "mDataProp": "url",
+                  "sTitle": "URL",
+                  "sDefaultContent": "",
+                  "sClass": "center"
+                },
+                {
+                  "mDataProp": "createTime",
+                  "sTitle": "创建时间",
+                  "sDefaultContent": "",
+                  "sClass": "center"
+                },
+                {
+                  "mDataProp": "updateTime",
+                  "sTitle": "修改时间",
+                  "sDefaultContent": "",
+                  "sClass": "center"
+                },
+                {
+                  "mDataProp": "remark",
+                  "sTitle": "备注",
+                  "sDefaultContent": "",
+                  "sClass": "center",
+                  'bSortable': false
+                },
+                {
+                  "mDataProp": "oper",
+                  "sTitle": "操作",
+                  "sDefaultContent": "",
+                  "sClass": "center",
+                  'bSortable': false,
+                  "fnRender": function(obj) {
+
+                    var func = "javascript:details("+obj.aData.pid+");";
+                    var btn =  '<button class="btn btn-default" onclick="'+func+'">所属菜单详情</button>';
+
+                    //console.info(btn)
+                    return btn;
+                  }
+                }],
+
+                "bServerSide": true,
+                //是否启动服务器端数据导入 
+                "sAjaxSource": '/system/oper/list',
+                //服务器端，数据回调处理  
+                "fnServerData": retrieveData,
+              }
+              table = $(this).dataTable(opt);
+            });
+          }
+        }
+        if ('inittable' != tag) {
+          table.fnDraw();
+        }
+
+      }
+
+      //清空
+      function clearSearch() {
+        $('#Name').val('');
+        $('#MenuId').val('');
+        $('#CreateTimeS').val('');
+        $('#CreateTimeE').val('');
+        $('#UpdateTimeS').val('');
+        $('#UpdateTimeE').val('');
+      }
+
+      //处理服务器数据
+      function retrieveData(sSource, aoData, fnCallback) {
+
+        var condition = [];
+
+        if ($('#Name').val()) {
+          condition.push({
+            "name": "Name",
+            "value": $('#Name').val()
+          });
+          condition.push({
+            "name": "Name_q",
+            "value": $('#Name_q').val()
+          });
+        }
+
+        if ($('#MenuId').val()) {
+          condition.push({
+            "name": "MenuId",
+            "value": $('#MenuId').val()
+          });
+          condition.push({
+            "name": "MenuId_q",
+            "value": $('#MenuId_q').val()
+          });
+        }
+
+        if ($('#CreateTimeS').val()) {
+          condition.push({
+            "name": "CreateTime",
+            "value": $('#CreateTimeS').val()
+          });
+          condition.push({
+            "name": "CreateTime_q",
+            "value": $('#CreateTimeS_q').val()
+          });
+        }
+        if ($('#CreateTimeE').val()) {
+          condition.push({
+            "name": "CreateTime",
+            "value": $('#CreateTimeE').val()
+          });
+          condition.push({
+            "name": "CreateTime_q",
+            "value": $('#CreateTimeE_q').val()
+          });
+        }
+        if ($('#CreateTimeE').val() && $('#CreateTimeS').val()) {
+          condition.push({
+            "name": "CreateTime",
+            "value": $('#CreateTimeS').val() + '@_data_@' + $('#CreateTimeE').val()
+          });
+          condition.push({
+            "name": "CreateTime_q",
+            "value": $('#CreateTimeS_q').val() + '@_data_@' + $('#CreateTimeE_q').val()
+          });
+        }
+
+        if ($('#UpdateTimeS').val()) {
+          condition.push({
+            "name": "UpdateTime",
+            "value": $('#UpdateTimeS').val()
+          });
+          condition.push({
+            "name": "UpdateTime_q",
+            "value": $('#UpdateTimeS_q').val()
+          });
+        }
+        if ($('#UpdateTimeE').val()) {
+          condition.push({
+            "name": "UpdateTime",
+            "value": $('#UpdateTimeE').val()
+          });
+          condition.push({
+            "name": "UpdateTime_q",
+            "value": $('#UpdateTimeE_q').val()
+          });
+        }
+        if ($('#UpdateTimeE').val() && $('#UpdateTimeS').val()) {
+          condition.push({
+            "name": "UpdateTime",
+            "value": $('#UpdateTimeS').val() + '@_data_@' + $('#UpdateTimeE').val()
+          });
+          condition.push({
+            "name": "UpdateTime_q",
+            "value": $('#UpdateTimeS_q').val() + '@_data_@' + $('#UpdateTimeE_q').val()
+          });
+        }
+
+        $.ajax({
+          "dataType": 'json',
+          "type": "POST",
+          "url": sSource,
+          "data": {
+            "aoData": JSON.stringify(aoData),
+            "condition": JSON.stringify(condition)
+          },
+          "success": function(_data) {
+            var data = _data["aaData"];
+            var rows = [];
+            var result = {};
+
+            if (_data) {
+              isTimeOut(_data);
+              for (i in data) {
+                var sysOper = new SysOper(data[i].Id, data[i].Name, data[i].Url, data[i].Remark, data[i].CreateTime, data[i].UpdateTime, data[i].Status, data[i].Oper, data[i].MenuId);
+
+                rows.push(sysOper);
+              }
+              var result = {
+                'aaData': rows,
+                'sEcho': _data["sEcho"],
+                'iTotalRecords': _data['iTotalRecords'],
+                'iTotalDisplayRecords': _data['iTotalDisplayRecords']
+              };
+            }
+            fnCallback(result);
+          }
+        });
+      }
+
+      //类
+      function SysOper(id, name, url, remark, createTime, updateTime, status, oper, pid) {
+
+        var o = new Object();
+        o.id = id;
+        o.name = name;
+        o.url = url;
+        o.remark = remark;
+        o.createTime = createTime;
+        o.updateTime = updateTime;
+        o.oper = oper;
+        o.status = status;
+        o.pid = pid;
+        return o;
+      }
+
+      function isTimeOut(_data) {
+        if (_data == "error") {
+          window.location.href = '/system/toLogin';
+        }
+
+        return;
+      }</script>
+  </body>
+
+</html>

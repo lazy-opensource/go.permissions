@@ -1,0 +1,130 @@
+ <!DOCTYPE html> 
+<html lang="en">
+   <head> 
+     <meta charset="utf-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1">
+     <link type="text/css" href="/static/bootstrap.min.css" rel="stylesheet">
+     <link type="text/css" href="/static/bootstrap-theme.min.css" rel="stylesheet">
+     <link type="text/css" href="/static/global.css" rel="stylesheet">
+     
+   </head>
+   
+<body>
+  <!-- 导航nav start-->
+   <div id="navigation"></div>
+   <!-- 导航nav end -->
+      
+  <div class="container-fuild">
+    <input type="hidden" id="parentId" value={{.parentId}}>
+    <input type="hidden" id="parentName" value={{.parentName}}>
+     <div class="row">
+          <div class="col-md-2">
+              <div class="panel-group table-responsive" role="tablist">
+                   <div class="panel panel-primary leftMenu" id="sidebar">
+                       <div class="panel-heading" id="collapseListGroupHeading1" data-toggle="collapse" data-target="#collapseListGroup1" role="tab" >
+                       </div>
+                   </div>
+              </div>
+          </div>
+          <div class="col-md-10">
+
+               <iframe src="" name='content' id="content" frameborder="0" width="100%" scrolling="yes" marginheight="0" marginwidth="0" ></iframe>
+          </div>
+        
+      </div>
+          
+     
+  </div>
+
+    <script type ="text/javascript" src="/static/jquery.min.js"></script>
+    <script type ="text/javascript" src="/static/bootstrap.min.js"></script>
+    
+    <script type ="text/javascript">
+      
+
+       $('#navigation').load("/system/getNavigation");
+
+       $(document).ready(function(){
+           var parentId = $('#parentId').val()
+           var parentName = $('#parentName').val()
+
+           $.get(
+              "/system/getChildMenus",
+              {
+                parentId:parentId,
+                parentName:parentName
+                },
+              function(_data){ //初始將a.html include div#iframe
+      　　　　var data = $.parseJSON(_data);
+              
+              var data2 = data.rows;
+
+              var str = "";
+              str = str + '<h4 class="panel-title btn">'
+                        + parentName
+                        + '</h4>';
+
+              $('#collapseListGroupHeading1').append(str);
+
+              str = "";
+              str = str + '<div id="collapseListGroup1" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="collapseListGroupHeading1">'
+                        + '<ul class="list-group">';
+
+              $('#sidebar').append(str);
+              if ($(data2[0]).length == 0){
+
+                $('#sidebar').append('</ul></div>');
+
+              }else{
+
+                  for (i in data2){
+                    
+                  str = "";
+                  str = str + '<li class="list-group-item">'
+                            + '<a class="menu-item-left btn" target="content" href="'
+                            + data2[i].Url
+                            + '?menuId='
+                            + data2[i].Id
+                            + '">'
+                            + data2[i].Name
+                            + '</a></li>'
+
+                  $('#collapseListGroup1').append(str);
+                }
+                $('#sidebar').append('</ul></div>');
+                }
+              
+
+      　　})
+
+       })
+
+
+         $(function(){
+            $(".panel-heading").click(function(e){
+                /*切换折叠指示图标*/
+                $(this).find("span").toggleClass("glyphicon-chevron-down");
+                $(this).find("span").toggleClass("glyphicon-chevron-up");
+            });
+        });
+
+        
+       
+        $(function(){
+        changeFrameHeight();
+       })
+
+       function changeFrameHeight(){ 
+        var content= document.getElementById("content");
+        var h = document.documentElement.clientHeight-100; 
+        content.height=h;
+       }
+
+      window.onresize=function(){  
+           changeFrameHeight();  
+      } 
+    </script>
+
+   </body>
+</html>
+

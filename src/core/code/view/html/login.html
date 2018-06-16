@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>
+            login page
+        </title>
+        <link rel="stylesheet" href="/static/bootstrap.min.css" type="text/css">
+        </link>
+        <link rel="stylesheet" href="/static/global.css" type="text/css">
+        </link>
+    </head>
+    
+    <body>
+        <ul id="myTab" class="nav nav-tabs">
+            <li class="active"><a href="#1" data-toggle="tab">
+                     登录</a></li>
+            <li><a href="#2" data-toggle="tab">修改密码</a></li>
+            <li><a href="#3" data-toggle="tab">找回密码</a></li>
+        </ul>
+            <div id="myTabContent" class="tab-content">
+                <div class="tab-pane fade in active" id="1">
+                    <p>
+                        <div class="from-login-div">
+                            <form action="/system/toLogin" class="well" role="form" method="POST">
+                                <h2 class="form-signin-heading">
+                                    欢迎登录
+                                </h2>
+                                <input type="hidden" name="token" value="{{.}}" />
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-user"></span> 用户名：
+                                    </span>
+                                    <input type="text" class="form-control" name="username" placeholder="用户名..."
+                                    required autofocus>
+                                </div>
+                                <br>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-lock"></span>  密 码：
+                                    </span>
+                                    <input type="password" class="form-control" name="password" placeholder="密码..."
+                                    required>
+                                </div>
+                                <br>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" value="remember-me">
+                                        记住我
+                                    </label>
+                                </div>
+                                <button class="btn btn-lg btn-primary btn-block" type="submit">
+                                    登录
+                                </button>
+                                <span class="label-info">
+                                    {{.Message}}
+                                </span>
+                            </form>
+                        </div>
+                    </p>
+                </div>
+               <div class="tab-pane fade" id="2">
+                    <p>
+                        功能待开发
+                    </p>
+                </div>
+                <div class="tab-pane fade" id="3">
+                    <p>
+                        功能待开发
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script type="text/javascript" src="/static/jquery.min.js">
+    </script>
+    <script type="text/javascript" src="/static/bootstrap.min.js">
+    </script>
+    <script type="text/javascript">
+         $(function(){
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                // 获取已激活的标签页的名称
+                var activeTab = $(e.target).text();
+                // 获取前一个激活的标签页的名称
+                var previousTab = $(e.relatedTarget).text();
+                $(".active-tab span").html(activeTab);
+                $(".previous-tab span").html(previousTab);
+            });
+        });
+    </script>
+
+</html>

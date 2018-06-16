@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link type="text/css" href="/static/bootstrap.min.css" rel="stylesheet">
+        <link type="text/css" href="/static/bootstrap-theme.min.css" rel="stylesheet">
+        <link type="text/css" href="/static/jquery.dataTables.min.css" rel="stylesheet">
+        <link type="text/css" href="/static/dataTables.bootstrap.min.css" rel="stylesheet">
+        <link type="text/css" href="/static/dataTables.jqueryui.min.js" rel="stylesheet">
+        <link type="text/css" href="/static/bootstrap-datetimepicker.min.css" rel="stylesheet">
+        <link type="text/css" href="/static/bootstrap-treeview.min.css" rel="stylesheet">
+        <link type="text/css" href="/static/global.css" rel="stylesheet">
+        <script type="text/javascript" src="/static/jquery.min.js"></script>
+        <script type="text/javascript" src="/static/bootstrap.min.js"></script>
+        <script type="text/javascript" src="/static/jquery.dataTables.min.js"></script>
+        <script type="text/javascript" src="/static/dataTables.bootstrap.min.js"></script>
+        <script type="text/javascript" src="/static/bootstrap-datetimepicker.min.js"></script>
+        <script type="text/javascript" src="/static/bootstrap-datetimepicker.zh-CN.js"></script>
+        <script type="text/javascript" src="/static/jquery.validate.min.js"></script>
+        <script type="text/javascript" src="/static/bootbox.min.js"></script>
+        <script type="text/javascript" src="/static/menuTreeview.js"></script>
+         <script type="text/javascript" src="/static/operTabs.js"></script>
+        <script type="text/javascript" src="/static/bootstrap-treeview.min.js"></script>
+       
+    </head>
+    
+    <body>
+        <input type="hidden" id="hidden-id">
+        <input type="hidden" id="parentMenuId" value="{{.}}">
+        <div class="container-fluid">
+            <div class="page-header">
+                <h4>
+                    <b>角色管理</h4>
+            </div>
+            <div class="row">
+                <div class="col-sm-10">
+                    <div class="box">
+                        <div class="box-content nopadding y_tableser">
+                            <div class="form-inline table_formnew">
+                                <div class="form-group">
+                                    <label class="control-label">角色名称：</label>
+                                    <input type="text" id="Name" class="form-control">
+                                    <input type="hidden" id="Name_q" class="form-control" value="LIKE"></div>
+                                <div class="form-group">
+                                    <label class="control-label">创建时间：</label>
+                                    <input type="text" id="CreateTimeS" class="form-control form_datetime ">-
+                                    <input type="text" id="CreateTimeE" class="form-control form_datetime">
+                                    <input type="hidden" id="CreateTimeS_q" class="form-control" value="GT">
+                                    <input type="hidden" id="CreateTimeE_q" class="form-control" value="LT"></div>
+                                <div class="form-group">
+                                    <label class="control-label">修改时间：</label>
+                                    <input type="text" id="UpdateTimeS" class="form-control form_datetime ">-
+                                    <input type="text" id="UpdateTimeE" class="form-control form_datetime">
+                                    <input type="hidden" id="UpdateTimeS_q" class="form-control" value="GT">
+                                    <input type="hidden" id="UpdateTimeE_q" class="form-control" value="LT"></div>
+                                <div class="form-group" id="oper-btn">
+                                    <button class="btn btn-primary search" title="查询" rel="tooltip">查询</button>
+                                    <button class="btn btn-default" onclick="javascript:clearSearch();" title="清空" rel="tooltip">清空</button></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-nomargin table-striped dataTable dataTable-reorder" id="user_list_table">
+                    <thead>
+                        <tr>
+                            <th class='with-checkbox'>
+                                <input type="checkbox" name="check_all" id="check_all"></th>
+                            <th width="25%"></th>
+                            <th width="25%"></th>
+                            <th width="25%"></th>
+                            <th width="25%"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <!-- edit model start -->
+            <form id="roleForm" method='post'>
+                <div class="modal fade" id="roleModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">×</span></button>
+                                <h4 class="modal-title" id="roleModalLabel">新增</h4></div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="name" class="col-sm-4 control-label">角色名称：</label>
+                                    <input type="text" class="form-control" name="name" id="name" placeholder="角色名称"></div>
+                                <div class="form-group">
+                                    <label for="remark" class="col-sm-2 control-label">备注：</label>
+                                    <input type="text" class="form-control" name="remark" id="remark" placeholder="备注"></div>
+                            </div>
+                            <div class="modal-footer">
+                                <a class="btn btn-default" href="javascript:clear();" title="清空" rel="tooltip">清空</a>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button class="btn btn-primary" id="save">保存</button></div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <!-- edit model end -->
+            <!-- message model start -->
+            <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h4 class="modal-title" id="myModalLabel">成功</h4></div>
+                        <div class="modal-body" id="success"></div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button></div>
+                    </div>
+                </div>
+            </div>
+            <!-- message model end -->
+            <!-- roleGroup model start -->
+            <div class="modal fade" id="roleGroupModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h4 class="modal-title" id="myModalLabel">关联用户组/部门</h4></div>
+                        <div class="modal-body">
+                            <div class="checkbox" id='contactUserGroups'></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" onclick="javascript:confirmContactGroup();">确定</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button></div>
+                    </div>
+                </div>
+            </div>
+            <!-- roleGroup model end -->
+            <!-- roleMenu model start -->
+            <div class="modal fade" id="roleMenuModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h4 class="modal-title" id="myModalLabel">关联菜单</h4></div>
+                        <div class="modal-body">
+                            <div id='roleMenus'></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" id='confirmContactMenu'>确定</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal" onclick='javascript:initContactMenu();'>取消</button></div>
+                    </div>
+                </div>
+            </div>
+            <!-- roleMenu model end --></div>
+
+             <!-- userGroupOper model start -->
+            <div class="modal fade" id="roleOperModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h4 class="modal-title" id="myModalLabel">关联操作</h4></div>
+                        <div class="modal-body">
+                            <div id='roleOpers'>
+                                
+
+                                <ul id="roleOpers-ul" class="nav nav-tabs">
+                                </ul>
+                                <div id="roleOpers-content" class="tab-content">       
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" id='confirmContactOper'>确定</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal" >取消</button></div>
+                    </div>
+                </div>
+            </div>
+            <!-- userGroupOper model end --></div>
+        <script type="text/javascript">//条件查找
+            $('.search').click(function() {
+                query('seach');
+            });
+
+            //全选
+            $("#check_all").click(function(e) {
+                $('input', table.fnGetNodes()).prop('checked', this.checked);
+            });
+
+            //日历控件
+            $('.form_datetime').datetimepicker({
+                language: 'zh-CN',
+                weekStart: 1,
+                todayBtn: 1,
+                autoclose: 1,
+                todayHighlight: 1,
+                startView: 2,
+                forceParse: 0,
+                showMeridian: 1,
+                format: 'yyyy-mm-dd hh:mm:ss',
+                autoclose: false,
+                todayBtn: false,
+                pickerPosition: "bottom-top"
+            });
+
+            function initContactMenu(){
+                initRoleMenusTreeMul();
+            }
+
+            function toContactGroup() {
+                var ids = '';
+                $('input[name="check"]:checkbox').each(function() {
+                    if ($(this).is(':checked')) {
+                        ids = ids + $(this).val() + ',';
+                    }
+                })
+
+                var arr = new Array();
+                if (ids != '') {
+                    ids = ids.substring(0, ids.length - 1);
+                    arr = ids.split(',');
+                }
+
+                if (arr.length == 0 || arr.length > 1) {
+                    bootbox.alert('请选择一项进行操作！');
+                    return;
+                }
+
+                $('#contactUserGroups').html('');
+                $.post('/system/role/roleToContactGroup', {
+                    id: arr[0]
+                },
+                function(_data) {
+                    //console.info(_data);
+                    $('#hidden-id').val(_data.id);
+
+                    var groups = _data.groups;
+                    var roleGroups = _data.roleGroups;
+
+                    //console.info(groups);console.info(roleGroups);
+                    var temp = '';
+
+                    for (var i in groups) {
+
+                        if (i % 4 == 0) {
+                            temp = temp + '<br>'
+                        }
+
+                        var isCheck = checkIsContactGroup(roleGroups, groups[i]);
+                        //console.info(isCheck);
+                        if (isCheck) {
+
+                            temp = temp + '<label class="checkbox-inline"><input name="checkgroup" checked type="checkbox" value="' + groups[i].Id + '">' + groups[i].Name + '</label>';
+                        } else {
+
+                            temp = temp + '<label class="checkbox-inline"><input name="checkgroup"  type="checkbox" value="' + groups[i].Id + '">' + groups[i].Name + '</label>';
+                        }
+
+                    }
+
+                    $('#contactUserGroups').html(temp);
+                    $('#roleGroupModal').modal('show', true);
+                },
+                'json')
+            }
+
+            function checkIsContactGroup(roleGroups, group) {
+
+                for (i in roleGroups) {
+                    if (roleGroups[i].Id == group.Id) {
+                        //roleGroups= roleGroups.slice(0,i).concat(roleGroups.slice(i+1,roleGroups.length));
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            function confirmContactGroup() {
+
+                var roleId = $('#hidden-id').val();
+                var ids = '';
+                $('input[name="checkgroup"]:checkbox').each(function() {
+
+                    if ($(this).is(':checked')) {
+                        ids = ids + $(this).val() + ',';
+                    }
+                })
+
+                if (ids != '') {
+                    ids = ids.substring(0, ids.length - 1);
+                }
+
+                $.post('/system/role/confirmContactGroup', {
+                    roleId: roleId,
+                    groupIds: ids
+                },
+                function(_data) {
+
+                    $('#roleGroupModal').modal('hide');
+                    operSuccess(_data);
+                })
+
+            }
+
+            function confirmContactMenu() {
+
+                var menuIds = getRoleSelectNodeIds();
+                var roleId = $('#hidden-id').val();
+                //console.info(menuIds)
+                $.post('/system/role/confirmContactMenu', {
+                    roleId: roleId,
+                    menuIds: menuIds
+                },
+                function(_data) {
+                    $('#roleMenuModal').modal('hide');
+                    operSuccess(_data);
+                },
+                'json')
+            }
+
+            function toContactMenu() {
+
+                var ids = '';
+                $('input[name="check"]:checkbox').each(function() {
+                    if ($(this).is(':checked')) {
+                        ids = ids + $(this).val() + ',';
+                    }
+                })
+
+                if (ids == '') {
+                    bootbox.alert('请选择一项进行操作!');
+                    return;
+                }
+
+                ids = ids.substring(0, ids.length - 1);
+                var arr = new Array();
+                arr = ids.split(',');
+
+                if (arr.length > 1) {
+                    bootbox.alert('请选择一项进行操作!');
+                    return;
+                }
+
+                $('#hidden-id').val(arr[0]);
+                
+                $.post('/system/role/roleToContactMenu', {
+                    id: arr[0]
+                },
+                function(_data) {
+                    //console.info(_data);
+                    setRoleMenuNodesSelected(_data);
+                    $('#confirmContactMenu').attr('onclick', 'javascript:confirmContactMenu();');
+                    $('#roleMenuModal').modal('show', true);
+                },
+                'json')
+            }
+
+            function toContactOper() {
+
+                var ids = '';
+                $('input[name="check"]:checkbox').each(function() {
+                    if ($(this).is(':checked')) {
+                        ids = ids + $(this).val() + ',';
+                    }
+                })
+
+                var arr = new Array(0);
+                if (ids != '') {
+                    ids = ids.substring(0, ids.length - 1);
+                    arr = ids.split(',');
+                }
+                if (arr.length == 0 || arr.length > 1) {
+                    bootbox.alert('请选择一项进行操作!');
+                    return;
+                }
+
+                $('#hidden-id').val(arr[0]);
+                $('#confirmContactOper').attr('onclick' , 'javascript:confirmContactOper();');
+
+                initRoleOperTabs(arr[0]);
+
+            }
+
+              function confirmContactOper(){
+            
+            var ids = '';
+            $('input[name="operCheck"]:checkbox').each(function(){
+                if ($(this).is(':checked')){
+                    ids = ids + $(this).val() + ',';
+                }
+            })
+
+            if (ids != ''){
+                ids = ids.substring(0 , ids.length - 1);
+            }
+            var id = $('#hidden-id').val();
+
+            $.post(
+                '/system/role/roleConfirmContactOper',
+                {operIds:ids,roleId:id},
+                function(_data){
+
+                    $('#roleOperModal').modal('hide');
+                    operSuccess(_data);
+                }
+                )
+        }
+
+            //to add
+            function toAdd() {
+                clear();
+                $('#save').attr('onclick', 'javascript:add();');
+                $('#roleModalLabel').html('新增');
+                $('#roleModal').modal('show', true);
+
+            }
+
+            //edit
+            function toEdit() {
+                var ids = '';
+
+                $('input[name="check"]:checkbox').each(function() {
+
+                    if ($(this).is(':checked')) {
+
+                        ids = ids + $(this).val() + ','
+                    }
+                })
+
+                var arr = new Array(0);
+                if (ids != '') {
+                    ids = ids.substring(0, ids.length - 1);
+                    arr = ids.split(',');
+                    //alert(arr.length);
+                }
+
+                if (arr.length > 1 || arr.length == 0) {
+                    bootbox.alert('请选择一项进行操作！');
+                    return;
+                }
+
+                $('#hidden-id').val(arr[0]);
+                $.post('/system/role/getRoleById', {
+                    roleId: arr[0]
+                },
+                function(_data) {
+                    //console.info(_data);
+                    //alert(_data[0].Name)
+                    $('#name').val(_data[0].Name);
+                    $('#remark').val(_data[0].Remark);
+                    $('#save').attr('onclick', 'javascript:edit();');
+                    $('#roleModalLabel').html('编辑');
+                    $('#roleModal').modal('show', true);
+                },
+                'json')
+
+            }
+
+            function add() {
+                submitForm('add');
+            }
+
+            //edit
+            function edit() {
+                submitForm('edit');
+            }
+
+            //del
+            function del() {
+                var ids = '';
+
+                $('input[name="check"]:checkbox').each(function() {
+                    if ($(this).is(':checked')) {
+                        ids = ids + $(this).val() + ',';
+                    }
+                })
+
+                var arr = new Array(0);
+                if (ids != '') {
+                    ids = ids.substring(0, ids.length - 1);
+                    arr = ids.split(',');
+                }
+
+                if (arr.length == 0) {
+                    bootbox.alert('至少选择一项进行操作!');
+                    return;
+                }
+
+                bootbox.confirm('确认删除' + arr.length + '条数据吗?',
+                function(r) {
+                    if (r) {
+                        $.post('/system/role/del', {
+                            ids: ids
+                        },
+                        function(_data) {
+                            operSuccess(_data);
+                        },
+                        'json')
+
+                    }
+                })
+
+            }
+
+            function clear() {
+                $('#name').val('');
+                $('#remark').val('');
+            }
+
+            //初始化
+            $(document).ready(function() {
+
+                var validateParam = {
+                    rules: {
+                        name: {
+                            required: true
+                        }
+                    },
+                    messages: {
+                        name: {
+                            required: '角色名称不能为空'
+                        }
+                    },
+                    submitHandler: function(form) {
+                        return false;
+                    }
+                };
+
+                $('#roleForm').validate(validateParam);
+
+                query('inittable');
+                parentMenuId = $('#parentMenuId').val();
+                getOper();
+                initRoleMenusTreeMul();
+            })
+
+            function submitForm(action) {
+                //alert(action);
+                var isOk = $('#roleForm').valid();
+
+                if (!isOk) {
+                    return;
+                }
+                if (action == 'add') {
+                    var name = $('#name').val();
+                    var remark = $('#remark').val();
+
+                    $.post('/system/role/add', {
+                        name: name,
+                        remark: remark
+                    },
+                    function(_data) {
+                        operSuccess(_data);
+                    },
+                    'json')
+                }
+
+                if (action == 'edit') {
+                    var name = $('#name').val();
+                    var remark = $('#remark').val();
+                    var roleId = $('#hidden-id').val();
+
+                    $.post('/system/role/edit', {
+                        name: name,
+                        remark: remark,
+                        roleId: roleId
+                    },
+                    function(_data) {
+                        operSuccess(_data);
+                    },
+                    'json')
+                }
+
+            }
+
+            function operSuccess(_data) {
+                isTimeOut(_data);
+                if (_data) {
+                    $('#roleModal').modal('hide');
+                    $('#success').html('成功操作' + _data + '条数据');
+                    $('#successModal').modal('show', true);
+                } else {
+                    $('#roleModal').modal('hide');
+                    $('#success').html(' 操作失败!');
+                    $('#successModal').modal('show', true);
+                }
+                table.fnDraw();
+            }
+
+            //session是否超时
+            function isTimeOut(_data) {
+                if (_data == 'error') {
+                    window.location.href = "/system/toLogin";
+                }
+                return;
+            }
+
+            var opers = 0;
+            var parentMenuId;
+
+            //获得操作权限
+            function getOper() {
+                $.post('/system/getCurrentMenuOper', {
+                    parentMenuId: parentMenuId
+                },
+                function(_data) {
+                    if (_data) {
+                        var arr = [];
+                        for (i in _data) {
+                            o = new SysOper(_data[i].Name, _data[i].Url);
+                            arr[i] = o;
+                        }
+                        var temp = '';
+                        opers = arr;
+                        if (opers) {
+                            //console.info(opers);
+                            $(opers).each(function() {
+                                temp = temp + '<a class="btn btn-default" title="' + this.name + '" href="' + this.url + '">' + this.name + '</a>';
+                            });
+                            // console.info(temp);
+                            $('#oper-btn').append(temp);
+                        }
+                    }
+
+                },
+                'json')
+            }
+
+            var table = null;
+
+            //定义表格字段和数据源
+            function query(tag) {
+                if (table == null) {
+                    if ($('.dataTable').length > 0) {
+                        $('.dataTable').each(function() {
+                            var opt = {
+                                "bProcessing": true,
+                                //DataTables载入数据时，是否显示‘进度’提示  
+                                "bServerSide": true,
+                                //是否启动服务器端数据导入  
+                                "bStateSave": true,
+                                //是否打开客户端状态记录功能,此功能在ajax刷新纪录的时候不会将个性化设定回复为初始化状态  
+                                "bJQueryUI": true,
+                                //是否使用 jQury的UI theme    
+                                "aLengthMenu": [5, 10, 20, 40, 60],
+                                //更改显示记录数选项  
+                                "iDisplayLength": 10,
+                                //默认显示的记录数  
+                                "bAutoWidth": true,
+                                //是否自适应宽度  
+                                //"bScrollInfinite" : false, //是否启动初始化滚动条  
+                                "bScrollCollapse": true,
+                                //是否开启DataTables的高度自适应，当数据条数不够分页数据条数的时候，插件高度是否随数据条数而改变  
+                                "bPaginate": true,
+                                //是否显示（应用）分页器  
+                                "bInfo": true,
+                                //是否显示页脚信息，DataTables插件左下角显示记录数  
+                                "sPaginationType": "full_numbers",
+                                //详细分页组，可以支持直接跳转到某页  
+                                "bSort": true,
+                                //是否启动各个字段的排序功能  
+                                "aaSorting": [[1, "asc"]],
+                                //默认的排序方式，第2列，升序排列  
+                                "bFilter": true,
+                                //是否启动过滤、搜索功能  
+                                "oLanguage": { //国际化配置  
+                                    "sProcessing": "正在获取数据，请稍后...",
+                                    "sLengthMenu": "显示 _MENU_ 条",
+                                    "sZeroRecords": "没有您要搜索的内容",
+                                    "sInfo": "从 _START_ 到  _END_ 条记录 总记录数为 _TOTAL_ 条",
+                                    "sInfoEmpty": "记录数为0",
+                                    "sInfoFiltered": "(全部记录数 _MAX_ 条)",
+                                    "sInfoPostFix": "",
+                                    "sSearch": "查询",
+
+                                    "oPaginate": {
+                                        "sFirst": "第一页",
+                                        "sPrevious": "上一页",
+                                        "sNext": "下一页",
+                                        "sLast": "最后一页"
+                                    }
+                                },
+                                'sDom': "rtlip",
+                                'aoColumnDefs': [{
+                                    'bSortable': false,
+                                    'aTargets': [0, 1, 2, 3]
+                                }],
+
+                                "aoColumns": [{
+                                    "mDataProp": "checkbox",
+                                    "sDefaultContent": "",
+                                    'bSortable': false,
+                                    "fnRender": function(obj) {
+
+                                        if (obj.aData.id != '1') {
+                                             var sReturn = "<input  type='checkbox' name='check' value='" + obj.aData.id + "' style='margin-left:9px'/>";
+                                             return sReturn;
+                                        }
+
+                                    }
+                                },
+                                {
+                                    "mDataProp": "name",
+                                    "sTitle": "角色名称",
+                                    "sDefaultContent": "",
+                                    "sClass": "center"
+                                },
+                                {
+                                    "mDataProp": "createTime",
+                                    "sTitle": "创建时间",
+                                    "sDefaultContent": "",
+                                    "sClass": "center"
+                                },
+                                {
+                                    "mDataProp": "updateTime",
+                                    "sTitle": "修改时间",
+                                    "sDefaultContent": "",
+                                    "sClass": "center"
+                                },
+                                {
+                                    "mDataProp": "remark",
+                                    "sTitle": "备注",
+                                    "sDefaultContent": "",
+                                    "sClass": "center",
+                                    'bSortable': false
+                                }],
+
+                                "bServerSide": true,
+                                //是否启动服务器端数据导入 
+                                "sAjaxSource": '/system/role/list',
+                                //服务器端，数据回调处理  
+                                "fnServerData": retrieveData,
+                            }
+                            table = $(this).dataTable(opt);
+                        });
+                    }
+                }
+                if ('inittable' != tag) {
+                    table.fnDraw();
+                }
+
+            }
+
+
+
+function initRoleOperTabs(roleId) {
+   
+
+    $('#roleOpers-ul').empty();
+    $('#roleOpers-content').empty();
+
+    if (roleId == '') {
+        return;
+    }
+
+    $.post('/system/role/roleToContactOper', {
+        roleId: roleId
+    },
+    function(_data) {
+
+        //console.info(_data);
+        _data = $.parseJSON(_data);
+        var menuUnitOper = _data["menuUnitOper"];
+        var userGroupOper = _data["roleOpers"];
+        var menuNames = _data["menuNames"];
+
+        //console.info(menuUnitOper);console.info(userGroupOper);console.info(menuNames);
+        //console.info(userGroupOper);
+        var menuOpers = '';
+
+        var ul = $('#roleOpers-ul');
+        var content = $('#roleOpers-content');
+        var lis = '';
+        var dropdown = '';
+        var contents = '';
+        var opers = '';
+        var tag = 0;
+
+        for (var i in menuUnitOper) {
+
+            tag++;
+            if (tag > 5) {
+                if (tag == 6) {
+                    dropdown = dropdown + '<li class="dropdown"><a href="#" id="myTabDrop1" class="dropdown-toggle"' + 'data-toggle="dropdown">鏇村�<b class="caret"></b> </a><ul class="dropdown-menu" role="menu" aria-labelledby="myTabDrop1">' + '<li><a href="#' + i + '" tabindex="-1" data-toggle="tab">' + menuNames[i] + '</a></li>';
+                } else {
+                    dropdown = dropdown + '<li><a href="#' + i + '" tabindex="-1" data-toggle="tab">' + menuNames[i] + '</a></li>';
+                }
+
+            } else {
+
+                if (tag == 1) {
+
+                    lis = lis + '<li class="active"><a href="#' + i + '" data-toggle="tab">' + menuNames[i] + '</a></li>';
+                } else {
+
+                    lis = lis + '<li><a href="#' + i + '" data-toggle="tab">' + menuNames[i] + '</a></li>';
+                }
+
+            }
+
+            opers = '<div>';
+            menuOpers = menuUnitOper[i];
+            for (var j in menuOpers) {
+
+                if (j % 5 == 0) {
+                    opers = opers + '<br><br>';
+                }
+
+                if (checkOperId(userGroupOper, menuOpers[j].Id)){
+
+                    opers = opers + '<label class="checkbox-inline"><input type="checkbox" checked name="operCheck" value="' + menuOpers[j].Id + '">' + menuOpers[j].Name + '</label>';
+                }else{
+
+                    opers = opers + '<label class="checkbox-inline"><input type="checkbox" name="operCheck" value="' + menuOpers[j].Id + '">' + menuOpers[j].Name + '</label>';
+                }
+                
+            }
+            opers = opers + '</div>';
+
+            if (tag == 1) {
+
+                contents = contents + '<div class="tab-pane fade in active" id="' + i + '">' + opers + '</div>';
+            } else {
+
+                contents = contents + '<div class="tab-pane fade" id="' + i + '">' + opers + '</div>';
+
+            }
+
+        }
+
+        dropdown = dropdown + '</ul></li>';
+
+        lis = lis + dropdown;
+
+        //console.info(lis);
+        //console.info(contents);
+        ul.append(lis);
+        content.append(contents);
+        $('#roleOpers').append(ul).append(content);
+        $('#roleOperModal').modal('show', true);
+    })
+}
+
+function checkOperId(userGroupS , operId){
+
+    for (var i in userGroupS){
+
+        if (userGroupS[i].Id == operId){
+            return true;
+        }
+    }
+    return false;
+}
+
+            //清空
+            function clearSearch() {
+                $('#Name').val('');
+                $('#CreateTimeS').val('');
+                $('#CreateTimeE').val('');
+                $('#UpdateTimeS').val('');
+                $('#UpdateTimeE').val('');
+            }
+
+            //处理服务器数据
+            function retrieveData(sSource, aoData, fnCallback) {
+
+                var condition = [];
+
+                if ($('#Name').val()) {
+                    condition.push({
+                        "name": "Name",
+                        "value": $('#Name').val()
+                    });
+                    condition.push({
+                        "name": "Name_q",
+                        "value": $('#Name_q').val()
+                    });
+                }
+
+                if ($('#CreateTimeS').val()) {
+                    condition.push({
+                        "name": "CreateTime",
+                        "value": $('#CreateTimeS').val()
+                    });
+                    condition.push({
+                        "name": "CreateTime_q",
+                        "value": $('#CreateTimeS_q').val()
+                    });
+                }
+                if ($('#CreateTimeE').val()) {
+                    condition.push({
+                        "name": "CreateTime",
+                        "value": $('#CreateTimeE').val()
+                    });
+                    condition.push({
+                        "name": "CreateTime_q",
+                        "value": $('#CreateTimeE_q').val()
+                    });
+                }
+                if ($('#CreateTimeE').val() && $('#CreateTimeS').val()) {
+                    condition.push({
+                        "name": "CreateTime",
+                        "value": $('#CreateTimeS').val() + '@_data_@' + $('#CreateTimeE').val()
+                    });
+                    condition.push({
+                        "name": "CreateTime_q",
+                        "value": $('#CreateTimeS_q').val() + '@_data_@' + $('#CreateTimeE_q').val()
+                    });
+                }
+
+                if ($('#UpdateTimeS').val()) {
+                    condition.push({
+                        "name": "UpdateTime",
+                        "value": $('#UpdateTimeS').val()
+                    });
+                    condition.push({
+                        "name": "UpdateTime_q",
+                        "value": $('#UpdateTimeS_q').val()
+                    });
+                }
+                if ($('#UpdateTimeE').val()) {
+                    condition.push({
+                        "name": "UpdateTime",
+                        "value": $('#UpdateTimeE').val()
+                    });
+                    condition.push({
+                        "name": "UpdateTime_q",
+                        "value": $('#UpdateTimeE_q').val()
+                    });
+                }
+                if ($('#UpdateTimeE').val() && $('#UpdateTimeS').val()) {
+                    condition.push({
+                        "name": "UpdateTime",
+                        "value": $('#UpdateTimeS').val() + '@_data_@' + $('#UpdateTimeE').val()
+                    });
+                    condition.push({
+                        "name": "UpdateTime_q",
+                        "value": $('#UpdateTimeS_q').val() + '@_data_@' + $('#UpdateTimeE_q').val()
+                    });
+                }
+
+                $.ajax({
+                    "dataType": 'json',
+                    "type": "POST",
+                    "url": sSource,
+                    "data": {
+                        "aoData": JSON.stringify(aoData),
+                        "condition": JSON.stringify(condition)
+                    },
+                    "success": function(_data) {
+                        var data = _data["aaData"];
+                        var rows = [];
+                        var result = {};
+
+                        if (_data) {
+                            if (_data == "error") {
+                                window.location.href = '/system/toLogin';
+                            }
+                            for (i in data) {
+                                var sysRole = new SysRole(data[i].Id, data[i].Name, data[i].Remark, data[i].CreateTime, data[i].UpdateTime, data[i].Status, data[i].Oper);
+
+                                rows.push(sysRole);
+                            }
+                            var result = {
+                                'aaData': rows,
+                                'sEcho': _data["sEcho"],
+                                'iTotalRecords': _data['iTotalRecords'],
+                                'iTotalDisplayRecords': _data['iTotalDisplayRecords']
+                            };
+                        }
+                        fnCallback(result);
+                    }
+                });
+            }
+
+            //类
+            function SysRole(id, name, remark, createTime, updateTime, status, oper) {
+
+                var o = new Object();
+                o.id = id;
+                o.name = name;
+                o.remark = remark;
+                o.createTime = createTime;
+                o.updateTime = updateTime;
+                o.oper = oper;
+                o.status = status;
+                return o;
+            }
+
+
+
+            function SysOper(name, url) {
+                var o = new Object();
+                o.name = name;
+                o.url = url;
+                return o;
+            }</script>
+
+    </body>
+
+</html>

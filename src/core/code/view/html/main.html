@@ -1,0 +1,86 @@
+
+ <!DOCTYPE html> 
+<html lang="en">
+   <head> 
+     <meta charset="utf-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1">
+     <link type="text/css" href="/static/bootstrap.min.css" rel="stylesheet">
+     <link type="text/css" href="/static/bootstrap-theme.min.css" rel="stylesheet">
+     <link type="text/css" href="/static/global.css" rel="stylesheet">
+     <script type ="text/javascript" src="/static/jquery.min.js"></script>
+     <script type ="text/javascript" src="/static/bootstrap.min.js"></script>
+   </head>
+   <body class="main-body">
+ <!-- 导航nav start-->
+   <div id="navigation"></div>
+    <!-- 导航nav end -->
+
+    <!-- 流式布局start -->
+    <div class="container-fluid">
+       <div class="row">
+        <div class="col-sm-6 col-md-6">
+             <div class="thumbnail">
+                <div class="caption">
+                    <h3>企业愿景</h3><hr>
+                    <p>为用户提供极致体验的产品与服务</p>
+                </div>
+             </div>
+        </div>
+        <div class="col-sm-6 col-md-6">
+            <div class="thumbnail">
+                <div class="caption">
+                    <h3>企业使命</h3><hr>
+                    <p>为用户创造价值、 为员工创造机会,为股东创造效益、 为社会承担责任</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-md-6">
+            <div class="thumbnail">
+                <div class="caption ">
+                    <h3>企业精神</h3><hr>
+                    <p>敬业，诚信，团队，创新</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-6">
+            <div class="thumbnail">
+                <div class="caption">
+                    <h3>企业价值观</h3><hr>
+                    <p>用户至上，开放创新，合作分享，诚信尽责</p>
+                </div>
+            </div>
+        </div>
+    </div> 
+</div>
+    <!-- 流式布局end -->
+   <script type ="text/javascript">
+       $('#navigation').load("/system/getNavigation");
+    </script>
+   </body>
+</html>
+<!-- {{$l := len .rows }}
+                 {{range $k , $v := .rows}}
+                    {{if lt $k 4}}
+                       <li><a href="javascript:getChildMenuById('{{$v.Url}}',{{$v.Id}})" class="navbar-brand">{{$v.Name}}</a></li>
+                    {{end}}
+                 {{end}}
+                
+                 {{if gt $l 5}}
+                 <li class="dropdown"><a class="dropdown-toggle navbar-brand" data-toggle="dropdown" href="#">更多<span class="caret"></span></a><ul class="dropdown-menu">
+                   {{range $k,$v := .rows}}
+                      {{if gt $k 3}}
+                           <li><a href="javascript:getChildMenuById('{{$v.Url}}',{{$v.Id}})" class="navbar-brand">{{$v.Name}}</a></li>
+                      {{end}}
+                   {{end}}
+                 </ul>
+               </li>
+                 {{end}} -->
+<!-- 
+                 <div id="content" class="container-fluid">
+      <div id="left"><iframe name="menuFrame" frameborder=0 width="100%" height="100%" scrolling=no src="${pageContext.servletContext.contextPath}/admin/toMenu/${parentId}"></iframe></div>  
+      <div id="main" class="aeb_main">
+        <iframe name="mainFrame" frameborder=0 width="100%" height="100%" scrolling=yes style="overflow-x:hidden" 
+          src="<c:choose><c:when test="${!empty toUrl}">${toUrl}</c:when><c:otherwise>${pageContext.servletContext.contextPath}/admin/toWelcome</c:otherwise></c:choose>"></iframe>
+      </div>
+    </div> -->

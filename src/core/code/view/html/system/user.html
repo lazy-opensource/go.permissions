@@ -1,0 +1,1151 @@
+<!DOCTYPE html> 
+<html lang="en">
+   <head> 
+       <meta charset="utf-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1">
+       <link type="text/css" href="/static/bootstrap.min.css" rel="stylesheet">
+       <link type="text/css" href="/static/bootstrap-theme.min.css" rel="stylesheet">
+       <link type="text/css" href="/static/jquery.dataTables.min.css" rel="stylesheet">
+       <link type="text/css" href="/static/dataTables.bootstrap.min.css" rel="stylesheet">
+       <link type="text/css" href="/static/dataTables.jqueryui.min.js" rel="stylesheet">
+       <link type="text/css" href="/static/bootstrap-datetimepicker.min.css" rel="stylesheet">
+       <link type="text/css" href="/static/global.css" rel="stylesheet">
+
+
+       <script type ="text/javascript" src="/static/jquery.min.js"></script>
+       <script type ="text/javascript" src="/static/bootstrap.min.js"></script>
+       <script type ="text/javascript" src="/static/jquery.dataTables.min.js"></script>
+       <script type ="text/javascript" src="/static/dataTables.bootstrap.min.js"></script>
+       <script type ="text/javascript" src="/static/bootstrap-datetimepicker.min.js"></script>
+       <script type ="text/javascript" src="/static/bootstrap-datetimepicker.zh-CN.js"></script>
+       <script type ="text/javascript" src="/static/jquery.validate.min.js"></script>
+       <script type ="text/javascript" src="/static/bootbox.min.js"></script>
+   </head>
+<body>
+    <input type="hidden" id="parentMenuId" value="{{.}}">
+    <div class="container-fluid">
+        <div class="page-header">
+            <h4><b>用户管理</h4>
+        </div>
+        <div class="row">
+            <div class="col-sm-10">
+                <div class="box">
+                    <div class="box-content nopadding y_tableser">
+                            <div class="form-inline table_formnew">
+
+                                <div  class="form-group">
+                                    <label class="control-label">用户名：</label>
+                                    <input type="text" id="Name" class="form-control">
+                                    <input type="hidden"  id="Name_q" class="form-control" value="LIKE">
+                                </div>
+
+                                 <div  class="form-group">
+                                    <label class="control-label">状态：</label>
+                                   <select name="" id="Status" class="form-control">
+                                        <option value="" >-- 请选择 --</option>
+                                        <option value="1">激活</option>
+                                        <option value="2">不合法</option>
+                                        <option value="3">冻结</option>
+                                        <option value="4">停用</option>
+                                    </select>
+                                    <input type="hidden" id="Status_q" class="form-control" value="EQ">
+                                </div>
+
+                                <div  class="form-group">
+                                    <label class="control-label">用户组/部门：</label>
+                                   <select name="" id="GroupID" class="form-control">
+                                        <option value="" >-- 请选择 --</option>
+                                    </select>
+                                    <input type="hidden" id="GroupID_q" class="form-control" value="EQ">
+                                </div>
+
+                                <div  class="form-group">
+                                    <label class="control-label">创建时间：</label>
+                                    <input type="text" id="CreateTimeS" class="form-control form_datetime "> - 
+                                    <input type="text"  id="CreateTimeE" class="form-control form_datetime">
+                                    <input type="hidden"  id="CreateTimeS_q" class="form-control" value="GT">
+                                    <input type="hidden"  id="CreateTimeE_q" class="form-control" value="LT">
+                                </div>
+
+                                <div  class="form-group">
+                                    <label class="control-label">修改时间：</label>
+                                    <input type="text" id="UpdateTimeS" class="form-control form_datetime "> - 
+                                    <input type="text"  id="UpdateTimeE" class="form-control form_datetime">
+                                    <input type="hidden"  id="UpdateTimeS_q" class="form-control" value="GT">
+                                    <input type="hidden"  id="UpdateTimeE_q" class="form-control" value="LT">
+                                </div> 
+
+                                <div class="form-group" id="oper-btn">
+                                    <button class="btn btn-primary search" title="查询" rel="tooltip">查询</button>
+                                    <button class="btn btn-default" onclick="javascript:clearSearch();" title="清空" rel="tooltip">清空</button>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <div class="table-responsive">
+       <table class="table table-bordered table-hover table-nomargin table-striped dataTable dataTable-reorder" id="user_list_table">
+           <thead>
+               <tr> 
+                    <th  class='with-checkbox'>
+                        <input type="checkbox" name="check_all" id="check_all">
+                    </th>
+                    <th width="15%"></th>
+                    <th width="10%"></th>
+                    <th width="10%"></th>
+                    <th width="20%"></th>
+                    <th width="20%"></th>
+                    <th width="15%"></th>
+                    <th width="10%"></th>
+               </tr>
+            </thead>
+            <tbody>
+            </tbody>
+       </table>
+    </div> 
+
+    <!-- edit model start -->  
+    <form id="userForm" method='post'>
+        <input type="hidden" id="hidden-id" name="id">
+        <div class="modal fade" id="userModel" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">  
+            <div class="modal-dialog">  
+                <div class="modal-content">  
+                    <div class="modal-header">  
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>  
+                        <h4 class="modal-title" id="userModalLabel">新增</h4>  
+                    </div>  
+                    <div class="modal-body">  
+                        <div class="form-group">
+                             <label for="name" class="col-sm-2 control-label">姓名：</label>  
+                            <input type="text" class="form-control" name="name" id="name" placeholder="姓名" >  
+                        </div>  
+                        <div class="form-group">  
+                             <label for="email" class="col-sm-2 control-label">邮箱：</label>
+                            <input type="email" class="form-control" name="email" id="email" placeholder="邮箱" >  
+                        </div>  
+                        <div class="form-group" id="password_div">  
+                             <label for="password" class="col-sm-2 control-label">密码：</label>
+                            <input type="password" class="form-control" name="password" id="password" placeholder="密码" > 
+                        </div>
+                        <div class="form-group" id="password_confirm_div">  
+                             <label for="password_confirm" class="col-sm-4 control-label">确认密码：</label>
+                            <input type="password" class="form-control" name="password_confirm" id="password_confirm" placeholder="确认密码" > 
+                        </div>
+                        <div class="form-group hidden" id="status_div">  
+                             <label for="status" class="col-sm-2 control-label">状态：</label>
+                             <select name="status" id='status' class="selectpicker">
+                                <option value="2">--请选择--</option>
+                                <option value="2">不合法</option>
+                                <option value="3">停用</option>
+                                <option value="4">冻结</option>
+                             </select>
+                             <input type='hidden' name="status">
+                        </div>
+                        <div class="form-group">  
+                             <label for="remark" class="col-sm-2 control-label">备注：</label>
+                            <input type="text" class="form-control" id="remark" placeholder="备注" >  
+                        </div>    
+                    </div>  
+                    <div class="modal-footer">   
+                        <a  class="btn btn-default" href="javascript:clear();" title="清空" rel="tooltip">清空</a>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>  
+                        <button class="btn btn-primary" id="save">保存</button>  
+                    </div>
+                </div>  
+            </div>  
+        </div> 
+    </form>
+     <!-- edit model end --> 
+    <!-- message model start -->
+    <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">成功</h4>
+                </div>
+                <div class="modal-body" id="success"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- message model end -->
+
+     <!-- userGroup model start -->
+    <div class="modal fade" id="userGroupModel" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">选择用户组/部门</h4>
+                </div>
+                <div class="modal-body">
+                     <div class="radio"  id="userGroup">  </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="javascript:confirmUserGroup();" >确定</button>
+                    <button type="button" class="btn btn-default"  data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- userGroup model end -->
+
+    <!-- userDetail model start -->
+    <div class="modal fade" id="userDetailModel" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">详情</h4>
+                </div>
+                <div class="modal-body">
+                    
+                        <div class="form-group">  
+                             <h4><b>所属角色:</b></h4><span id='roles'></span>
+                        </div>
+                        <div class="form-group">  
+                             <h4><b>所属用户组/部门:</b></h4><span id='group'></span>
+                        </div>
+                    </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary"  data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- userDetail model end -->
+
+    <!-- groupRoles model start -->
+    <div class="modal fade" id="userRoleModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">关联角色</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="name">可关联角色</label>
+                        <select class="form-control" multiple="multiple" id="groupRolesSelect"></select>
+                        <botton class="btn btn-xs btn-info" id="add" >关联选中</botton>
+                        <botton class="btn btn-xs btn-info" id="add_all" >关联全部</botton>
+                        <br><br>
+                        <label for="name">已关联角色</label>
+                        <select class="form-control" multiple="multiple" id="userRolesSelect"></select>
+                   
+               
+                        <botton class="btn btn-xs btn-info" id="remove">取消选中</botton>
+                        <botton class="btn btn-xs btn-info" id="remove_all">取消全部</botton>
+                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="javascript:contactRole();" >确定</button>
+                    <button type="button" class="btn btn-default"  data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- groupRoles model end -->
+</div>
+    <script type ="text/javascript">
+
+         $(function(){
+            
+            var validateParam = {
+                rules:{
+                    name:{
+                        required:true,
+                        minlength:2
+                    },
+                    password:{
+                        required:true,
+                        minlength:6
+                    },
+                    email:{
+                        required:true,
+                        email:true
+                    },
+                    password_confirm:{
+                        required:true,
+                        equalTo:'#password'
+                    }
+                },
+                messages:{
+                    name:{
+                        required:'用户名不能为空',
+                        minlength:$.format('用户名不能少于两位')
+                    },
+                    password:{
+                        required:'密码不能为空',
+                        minlength:$.format('密码长度不能少于6位')
+                    },
+                    email:{
+                        required:'邮箱不能为空',
+                        email:$.format('邮箱格式错误，必须如13423803766@163.com')
+                    },
+                    password_confirm:{
+                        required:'不能为空',
+                        equalTo:$.format('两次密码不一致')
+                    }
+                },
+                submitHandler:function(form){
+                    return false;
+                }
+
+
+            };
+            $('#userForm').validate(validateParam);
+
+            //移到右边
+            $('#add').click(function() {
+
+                //获取选中的选项，删除并追加给对方
+                addRoleToUserBeginWork();
+                $('#groupRolesSelect option:selected').appendTo('#userRolesSelect');
+            });
+
+            //移到左边
+            $('#remove').click(function() {
+
+                removeRoleFromUserBeginWork();
+                $('#userRolesSelect option:selected').appendTo('#groupRolesSelect');
+            });
+            //全部移到右边
+            $('#add_all').click(function() {
+
+                addRoleToUserBeginWork(true);
+                //获取全部的选项,删除并追加给对方
+                $('#groupRolesSelect option').appendTo('#userRolesSelect');
+            });
+            //全部移到左边
+            $('#remove_all').click(function() {
+
+               removeRoleFromUserBeginWork(true);
+                $('#userRolesSelect option').appendTo('#groupRolesSelect');
+            });
+            //双击选项
+            $('#groupRolesSelect').dblclick(function(){ //绑定双击事件
+                //获取全部的选项,删除并追加给对方
+                addRoleToUserBeginWork();
+                $("option:selected",this).appendTo('#userRolesSelect'); //追加给对方
+            });
+            //双击选项
+            $('#userRolesSelect').dblclick(function(){
+                removeRoleFromUserBeginWork();
+               $("option:selected",this).appendTo('#groupRolesSelect');
+            });
+
+             getGroupID();
+        });
+
+
+
+        function getGroupID(){
+            $.post(
+                '/system/userGroup/list2',
+                function(_data){
+
+                    for (i in _data){
+                        var opt = new Option();
+                        opt.text = _data[i].Name;
+                        opt.value = _data[i].Id;
+                        $('#GroupID').append(opt);
+                    }
+                },'json'
+                )
+        }
+
+         //条件查找
+         $('.search').click(function(){
+             query('seach');
+         });
+
+
+         //全选
+         $("#check_all").click(function(e) {
+                    $('input', table.fnGetNodes()).prop('checked', this.checked);
+             });
+        
+        //日历控件
+        $('.form_datetime').datetimepicker({
+            language:  'zh-CN',
+            weekStart: 1,
+            todayBtn:  1,
+            autoclose: 1,
+            todayHighlight: 1,
+            startView: 2,
+            forceParse: 0,
+            showMeridian: 1,
+            format : 'yyyy-mm-dd hh:mm:ss',
+            autoclose: false,
+            todayBtn: false,
+            pickerPosition: "bottom-top"
+        });
+
+        function addRoleToUserBeginWork(isAll){
+
+            if (isAll){
+                $('#groupRolesSelect option').each(function(){
+
+                    $('#userRolesSelect option[value="'+$(this).val()+'"]').remove();
+                })
+
+            }else{
+                $('#groupRolesSelect option:selected').each(function(){
+
+                    $('#userRolesSelect option[value="'+$(this).val()+'"]').remove();
+                })
+            }
+            
+        }
+
+        
+        function removeRoleFromUserBeginWork(isAll){
+
+            if (isAll){
+                $('#userRolesSelect option').each(function(){
+
+                    $('#groupRolesSelect option[value="'+$(this).val()+'"]').remove();
+                })
+            }else{
+                $('#userRolesSelect option:selected').each(function(){
+
+                    $('#groupRolesSelect option[value="'+$(this).val()+'"]').remove();
+                })
+        }
+            }
+            
+
+        //contact role
+        function  contactRole(){
+
+            var roleIds = '';
+            var opts = $('#userRolesSelect')[0].options;
+
+            for (var i = 0;i < opts.length; i++){
+               roleIds = roleIds + opts[i].value + ',';
+            }
+
+            roleIds = roleIds.substring(0, roleIds.length -1);
+            var userId = $('#hidden-id').val();
+
+            $.post(
+                '/system/user/contactRole',
+                {roleIds:roleIds,userId:userId},
+                function(_data){
+                     $('#userRoleModal').modal('hide');
+                   operSuccess(_data);
+                },'json'
+                )
+        }
+
+        //to contact role
+        function toContactRole(){
+
+            $('#userRolesSelect').empty();
+            $('#groupRolesSelect').empty();
+            var ids = '';
+            $("input[name='check']:checkbox").each(function(){
+
+                if($(this).is(":checked")){        
+                    ids = ids + $(this).val() + "," ;  
+                }
+            })  
+
+            if (ids != ''){
+               ids = ids.substring(0,ids.length-1);
+            }
+
+            var arr = new Array();
+            arr = ids.split(',');
+   
+             if(arr=='' || arr.length <= 0 || arr.length > 1) {
+                //提示为空
+                bootbox.alert("请选择一项进行操作!") ;
+                return ;
+            } 
+            $('#hidden-id').val(arr[0]);
+
+            $.post(
+                '/system/user/getUserById',
+                {userId:arr[0]},
+                function(_data){
+                    isTimeOut(_data);
+                    var groupId = _data[0].GroupId;
+                    //alert(groupId);
+
+                    if (!groupId){
+                        $('#success').html('请先为该用户关联用户组/部门!');
+                        $('#successModal').modal('show',true);
+                        return;
+                    }
+
+                    $.post(
+                        '/system/user/getRoleListByGroupId',
+                        {userId:arr[0],groupId:groupId},
+                        function(_data2){
+                            var groupRoles = _data2["groupRoles"];
+                            var userRoles = _data2["userRoles"];
+                            //console.info(groupRoles);
+                            //console.info(userRoles);
+
+                            var temp = '';
+                            for (i in groupRoles){
+                                temp = temp + '<option value="' + groupRoles[i].Id + '">'+groupRoles[i].Name+'</option>';
+
+                            }
+                            $('#groupRolesSelect').append(temp);
+                            temp = '';
+                            for (i in userRoles){
+                                temp = temp + '<option value="' + userRoles[i].Id + '">'+userRoles[i].Name+'</option>';
+
+                            }
+                            $('#userRolesSelect').append(temp);
+                            $('#userRoleModal').modal('show',true);
+                        },'json'
+                        )
+                },'json'
+                )
+        }
+
+        //session是否超时
+        function isTimeOut(_data){
+            if (_data == 'error'){
+                 window.location.href = "/system/toLogin";
+            }
+            return;
+        }
+        
+        //confirm userGroup
+        function confirmUserGroup(){
+            //group id
+            var id = '';
+            $('input[name=groups]:radio').each(function(){
+                if ($(this).is(':checked')){
+                    id = $(this).val();
+                }
+            })
+            
+            if (id == ''){
+                return;
+            }
+
+            //user id
+            var id2 = '';
+            $("input[name='check']:checkbox").each(function(){
+
+                if($(this).is(":checked")){        
+                    id2 = $(this).val();  
+                }
+            })
+
+            $.post(
+                '/system/user/confirmUserGroup',
+                {userId:id2,groupId:id},
+                function(_data){
+                    //alert(_data);
+                    $('#userGroupModel').modal('hide');
+                    operSuccess(_data);
+                },'json'
+                )
+
+
+        }
+
+        //contact group
+        function contactGroup(){
+            
+            $('#userGroup').empty();
+            var ids = '';
+            $("input[name='check']:checkbox").each(function(){
+
+                if($(this).is(":checked")){        
+                    ids = ids + $(this).val() + "," ;  
+                }
+            })  
+
+            if (ids != ''){
+               ids = ids.substring(0,ids.length-1);
+            }
+
+            var arr = new Array();
+            arr = ids.split(',');
+   
+             if(arr=='' || arr.length <= 0 || arr.length > 1) {
+                //提示为空
+                bootbox.alert("请选择一项进行操作!") ;
+                return ;
+            } 
+
+            $.post(
+                '/system/user/contactGroup',
+                {id:arr[0]},
+                function(_data){
+                    if (_data){
+                       isTimeOut(_data);
+
+                       var userG = _data["userG"];
+                       var groups = _data["groups"];
+                       //console.info(userG);
+                       var userGId = '';
+                       if (userG[0]){
+                           userGId = userG[0].Id;
+                       }
+                      
+                       var temp2 = '';
+                       for (i in groups){
+                       //console.info(groups[i].Name);
+                           if (i % 5 == 0){
+                            temp2 = temp2 + '<br>';
+                           }
+                           if (groups[i].Id == userGId){
+                               temp2 = temp2 + '<label  class="radio-inline"><input checked type="radio" name="groups" value="' + groups[i].Id + '">'+groups[i].Name+'</label>';
+                           }else{
+                               temp2 = temp2 + "<label class='radio-inline'><input type='radio' name='groups' value='" + groups[i].Id + "'/>"+groups[i].Name+"</label>";
+                           }
+                          
+                       }
+
+                       $('#userGroup').append(temp2);
+                       //console.info(temp2);
+                       $('#userGroupModel').modal('show',true);
+
+                    }
+                },'json'
+                )
+        }
+
+         //edit
+        function toEdit(){
+            var ids = '';
+
+            $("input[name='check']:checkbox").each(function(){
+
+                if($(this).is(":checked")){        
+                    ids = ids + $(this).val() + "," ;  
+                }
+            })
+            
+            if (ids != ''){
+                ids = ids.substring(0,ids.length - 1);
+            }
+            var arr = new Array();
+            arr = ids.split(',');
+             if(arr=='' || arr.length <= 0 || arr.length > 1) {
+                //提示为空
+                bootbox.alert("请选择一项进行操作!") ;
+                return ;
+            } 
+
+            $.post(
+                '/system/user/toEdit',
+                {'id':arr[0]},
+                function(_data){
+                    if (_data){
+                        //$('#password').attr('type','text');
+                        $('#status_div').removeClass('hidden');
+                        $('#name').val(_data[0].Name);
+                        $('#email').val(_data[0].Email);
+                        $('#password_div').addClass('hidden').val(_data[0].Password);
+                        $('#password_confirm_div').addClass('hidden').val(_data[0].Password);
+                        $('#remark').val(_data[0].Remark);
+                        $('#hidden-id').val(_data[0].Id);
+                        if (_data[0].Status == '1'){
+                            $('select[name="status"]').each(function(){
+                                $(this).append('<option value="1">激活</option>');
+                            })
+                        }else{
+                            $('select[name="status"]').each(function(){
+                                if (this.children[this.children.length-1].value == "1"){
+                                    this.children[this.children.length-1].remove();
+                                }
+                            })
+                        }
+                        var options = $('select[name="status"]')[0].options;
+                        $(options).each(function(){
+                            if (this.value == _data[0].Status){
+                                this.selected = true;
+                            }
+                        })
+
+                        $('#save').attr('onclick','javascript:edit();');
+                        $('#userModalLabel').html("编辑");
+                        $('#userModel').modal('show',true);
+                    }
+                    
+
+                },'json'
+ 
+                )
+        }
+     
+        //to add
+        function toAdd(){
+            clear();
+            $('#password_div').removeClass('hidden');
+            $('#password_confirm_div').removeClass('hidden');
+            $('#status_div').addClass('hidden');
+            $('#save').attr('onclick','javascript:add();');
+            $('#userModel').modal('show',true);
+        }
+
+        function operSuccess(_data){
+            isTimeOut(_data);
+            table.fnDraw();
+            if (_data){
+                $('#userModel').modal('hide');
+                $('#success').html('成功操作'+_data+'条数据');
+                $('#successModal').modal('show',true);
+            }else{
+                $('#userModel').modal('hide');
+                $('#success').html(' 操作失败!')
+                $('#successModal').modal('show',true);
+            }
+        }
+
+        function submitForm(action){
+            var isOk = $('#userForm').valid();
+            if (!isOk){
+                return;
+            }
+            if (action == 'add'){
+                var name = $('#name').val();
+                var email = $('#email').val();
+                var password = $('#password').val();
+                var remark = $('#remark').val();
+
+                $.post(
+                    '/system/user/add',
+                    {"Name":name,"Email":email,"Password":password,"Remark":remark},
+                    function(_data){
+                       operSuccess(_data);
+                    },'json'
+                    )
+            }
+
+            if (action == 'edit'){
+                var status = $('select[name="status"]')[0].value;
+                var name =  $('#name').val();
+                var email = $('#email').val();
+                //var password =  $('#password').val();
+                var remark = $('#remark').val();
+                var id = $('#hidden-id').val();
+
+                $.post(
+                    '/system/user/edit',
+                    {id:id,name:name,email:email,remark:remark,status:status},
+                    function(_data){
+                        operSuccess(_data);
+                    }
+                    )
+            }
+        }
+
+        function add(){
+
+            submitForm('add');
+        }
+
+        //edit
+        function edit(){
+
+            submitForm('edit');
+        }
+
+        //del
+        function del(){
+            var ids = "";
+
+            $("input[name='check']:checkbox").each(function(){
+
+                if($(this).is(":checked")){        
+                    ids = ids + $(this).val() + "," ;  
+                }
+            })  
+
+            if(ids == "") {
+                //提示为空
+                bootbox.alert("至少选择一项进行操作!") ;
+                return ;
+            } 
+
+            var arr = new Array();
+            ids = ids.substring(0, ids.length -1);
+            arr = ids.split(',');
+
+            bootbox.confirm("确认删除" + arr.length + "条数据吗？", function(r){
+                if(r) {
+                    //删除
+                     $.post( 
+                        '/system/user/del',
+                        {"ids":ids},
+                        function(_data){
+                            operSuccess(_data);
+
+                        },'json'
+                        );     
+                }   
+            });
+             
+        }
+
+        // is empty obj
+        function isEmptyObj(obj){
+
+            for (var i in obj){
+                return false;
+            }
+            return true;
+        }
+
+        function clear(){
+            $('#name').val('');
+            $('#email').val('');
+            $('#password').val('');
+            $('#remark').val('');
+       }
+
+        //初始化
+        $(document).ready(function() {
+            parentMenuId = $('#parentMenuId').val();
+            getOper();
+            query('inittable');
+        
+        })
+  
+        var opers = 0; 
+        var parentMenuId ;
+        
+        
+       //获得操作权限
+        function getOper(){
+            $.post(
+                    '/system/getCurrentMenuOper',
+                    {parentMenuId:parentMenuId},
+                    function(_data){
+                        if (_data){
+                            var arr = [];
+                            for (i in _data){
+                                o = new SysOper(_data[i].Name,_data[i].Url);
+                                arr[i] = o;
+                            }
+                            var temp = '';
+                            opers = arr;
+                            if (opers){
+                                //console.info(opers);
+                                $(opers).each(function(){
+                                 temp = temp + '<a class="btn btn-default" title="'+this.name+'" href="'+this.url+'">'+this.name+'</a>';
+                                });
+                               // console.info(temp);
+                                $('#oper-btn').append(temp);
+                            }
+                        }
+                        
+                    },'json'
+                )
+        }
+        
+        function detail(userId,groupId){
+
+            $.post(
+                '/system/user/userDetail',
+                {userId:userId,groupId:groupId},
+                function(_data){
+                    //alert(_data);
+                    $('#roles').html('');
+                    $('#group').html('');
+                    //console.info(_data);
+                    var _data = $.parseJSON(_data);
+                    var roles = _data.roles;
+                    var group = _data.group;
+                    //console.info(_data);
+
+                    if (!isEmptyObj(roles)){
+                        var roleName = '';
+                        for (i in roles){
+                            roleName = roleName + roles[i].Name + ' | '
+                        }
+                        //roleName = roleName.substring(0,roleName.length - 1);
+                        $('#roles')[0].style = 'color:gray';
+                        $('#roles').html(roleName);
+                    }else{
+                        $('#roles')[0].style = 'color:red';
+                        $('#roles').html('未关联任何角色');
+                    }
+                   
+                    if (!isEmptyObj(group)){
+                        $('#group')[0].style = 'color:gray';
+                        $('#group').html(group[0].Name);
+                    }else{
+                        $('#group')[0].style = 'color:red';
+                        $('#group').html('未关联部门');
+                    }
+                    $('#userDetailModel').modal('show',true);
+
+                }
+                )
+        }
+
+        var table = null;
+        
+        //定义表格字段和数据源
+        function query(tag){
+            if (table == null){
+                if ($('.dataTable').length > 0) {
+                    $('.dataTable').each(function(){
+                        var opt = {
+                                    "bProcessing" : true, //DataTables载入数据时，是否显示‘进度’提示  
+                                    "bServerSide" : true, //是否启动服务器端数据导入  
+                                    "bStateSave" : true, //是否打开客户端状态记录功能,此功能在ajax刷新纪录的时候不会将个性化设定回复为初始化状态  
+                                    "bJQueryUI" : true, //是否使用 jQury的UI theme    
+                                    "aLengthMenu" : [5, 10, 20, 40, 60], //更改显示记录数选项  
+                                    "iDisplayLength" : 10, //默认显示的记录数  
+                                    "bAutoWidth" : true, //是否自适应宽度  
+                                    //"bScrollInfinite" : false, //是否启动初始化滚动条  
+                                    "bScrollCollapse" : true, //是否开启DataTables的高度自适应，当数据条数不够分页数据条数的时候，插件高度是否随数据条数而改变  
+                                    "bPaginate" : true, //是否显示（应用）分页器  
+                                    "bInfo" : true, //是否显示页脚信息，DataTables插件左下角显示记录数  
+                                    "sPaginationType" : "full_numbers", //详细分页组，可以支持直接跳转到某页  
+                                    "bSort" : true, //是否启动各个字段的排序功能  
+                                    "aaSorting" : [[1, "asc"]], //默认的排序方式，第2列，升序排列  
+                                    "bFilter" : true, //是否启动过滤、搜索功能  
+
+
+
+                                    "oLanguage": { //国际化配置  
+                                                    "sProcessing" : "正在获取数据，请稍后...",    
+                                                    "sLengthMenu" : "显示 _MENU_ 条",    
+                                                    "sZeroRecords" : "没有您要搜索的内容",    
+                                                    "sInfo" : "从 _START_ 到  _END_ 条记录 总记录数为 _TOTAL_ 条",    
+                                                    "sInfoEmpty" : "记录数为0",    
+                                                    "sInfoFiltered" : "(全部记录数 _MAX_ 条)",    
+                                                    "sInfoPostFix" : "",    
+                                                    "sSearch" : "查询",    
+                                                      
+                                                    "oPaginate": {    
+                                                        "sFirst" : "第一页",    
+                                                        "sPrevious" : "上一页",    
+                                                        "sNext" : "下一页",    
+                                                        "sLast" : "最后一页"    
+                                                    }  
+                                                },  
+                                    'sDom': "rtlip",
+                                    'aoColumnDefs': [{
+                                        'bSortable': false,
+                                        'aTargets': [0, 1, 2, 3]                
+                                    }], 
+
+                                    "aoColumns" : [{
+                                                    "mDataProp":"checkbox" ,
+                                                    "sDefaultContent":"",
+                                                    'bSortable': false,
+                                                    "fnRender": function(obj) {
+                                                        if (obj.aData.id != '1'){
+                                                            var sReturn = "<input type='checkbox' name='check' value='"+obj.aData.id+"' style='margin:9px;'/>";
+                                                             return sReturn;
+                                                        }
+                                                      
+                                                        }
+                                                    }, {  
+                                                        "mDataProp" : "name",  
+                                                        "sTitle" : "用户名称",  
+                                                        "sDefaultContent" : "",  
+                                                        "sClass" : "center"  
+                                                    }, {  
+                                                        "mDataProp" : "email",  
+                                                        "sTitle" : "电子邮箱",  
+                                                        "sDefaultContent" : "",  
+                                                        "sClass" : "center"  
+                                                    },{  
+                                                        "mDataProp" : "status",  
+                                                        "sTitle" : "状态",  
+                                                        "sDefaultContent" : "",  
+                                                        "sClass" : "center",
+                                                        'bSortable': false,
+                                                        "fnRender":function(obj){
+                                                           
+                                                            var status = '冻结';
+                                                            if (obj.aData.status == 1){
+                                                                status = '激活';
+                                                            }else if (obj.aData.status == 2){
+                                                                 status = '不合法';
+                                                            }else if (obj.aData.status == 3){
+                                                                status = '停用';
+                                                            }
+                                                            return status;
+                                                        }
+                                                    }, {  
+                                                        "mDataProp" : "createTime",  
+                                                        "sTitle" : "创建时间",  
+                                                        "sDefaultContent" : "",  
+                                                        "sClass" : "center"  
+                                                    }, {  
+                                                        "mDataProp" : "updateTime",  
+                                                        "sTitle" : "修改时间",  
+                                                        "sDefaultContent" : "",  
+                                                        "sClass" : "center"  
+                                                    }, {  
+                                                        "mDataProp" : "remark",  
+                                                        "sTitle" : "备注",  
+                                                        "sDefaultContent" : "",  
+                                                        "sClass" : "center" ,
+                                                        'bSortable': false 
+                                                    },{  
+                                                        "mDataProp" : "oper",  
+                                                        "sTitle" : "操作",  
+                                                        "sDefaultContent" : "",  
+                                                        "sClass" : "center" ,
+                                                        'bSortable': false,
+                                                         "fnRender":function(obj){
+                                                            var btn = "javascript:detail('" + obj.aData.id +"','" + obj.aData.group + "');";
+                                                            return "<button onclick="+btn+"  class='btn btn-default'>详情</button>";
+                                                         } 
+                                                    }],
+                                     
+                                    "bServerSide" : true, //是否启动服务器端数据导入 
+                                    "sAjaxSource" : '/system/user/list',  
+                                    //服务器端，数据回调处理  
+                                    "fnServerData" : retrieveData,      
+                                }
+                        table = $(this).dataTable(opt);
+                    });
+                }
+            }
+            if('inittable' != tag) {
+                table.fnDraw();
+            }
+
+        }
+
+        //清空
+         function clearSearch(){
+             $('#Name').val('');
+             $('#Status').val('');
+             $('#CreateTimeS').val('');
+             $('#CreateTimeE').val('');
+             $('#UpdateTimeS').val('');
+             $('#UpdateTimeE').val('');
+         }
+
+         //处理服务器数据
+        function retrieveData(sSource,aoData,fnCallback) {
+
+            var condition = [];
+          
+            if ($('#Name').val()){
+               condition.push({"name":"Name","value":$('#Name').val()});
+               condition.push({"name":"Name_q","value":$('#Name_q').val()});
+            }
+
+            if ($('#Status').val()){
+               condition.push({"name":"Status","value":$('#Status').val()});
+               condition.push({"name":"Status_q","value":$('#Status_q').val()});
+            }
+
+            if ($('#GroupID').val()){
+               condition.push({"name":"GroupId","value":$('#GroupID').val()});
+               condition.push({"name":"GroupId_q","value":$('#GroupID_q').val()});
+            }
+
+
+            if ($('#CreateTimeS').val()){
+                condition.push({"name":"CreateTime","value":$('#CreateTimeS').val()});
+                condition.push({"name":"CreateTime_q","value":$('#CreateTimeS_q').val()});
+            }
+            if ($('#CreateTimeE').val()){
+                condition.push({"name":"CreateTime","value":$('#CreateTimeE').val()});
+                condition.push({"name":"CreateTime_q","value":$('#CreateTimeE_q').val()});
+            }
+            if ($('#CreateTimeE').val()  && $('#CreateTimeS').val() ){
+                condition.push({"name":"CreateTime","value":$('#CreateTimeS').val()+'@_data_@'+$('#CreateTimeE').val()});
+                condition.push({"name":"CreateTime_q","value":$('#CreateTimeS_q').val()+'@_data_@'+$('#CreateTimeE_q').val()});
+            }
+
+            if ($('#UpdateTimeS').val()){
+                condition.push({"name":"UpdateTime","value":$('#UpdateTimeS').val()});
+                condition.push({"name":"UpdateTime_q","value":$('#UpdateTimeS_q').val()});
+            }
+            if ($('#UpdateTimeE').val()){
+                condition.push({"name":"UpdateTime","value":$('#UpdateTimeE').val()});
+                condition.push({"name":"UpdateTime_q","value":$('#UpdateTimeE_q').val()});
+            }
+            if ($('#UpdateTimeE').val() && $('#UpdateTimeS').val()){
+                condition.push({"name":"UpdateTime","value":$('#UpdateTimeS').val()+'@_data_@'+$('#UpdateTimeE').val()});
+                condition.push({"name":"UpdateTime_q","value":$('#UpdateTimeS_q').val()+'@_data_@'+$('#UpdateTimeE_q').val()});
+            }
+ 
+             $.ajax({  
+                    "dataType" : 'json',  
+                    "type" : "POST",  
+                    "url" : sSource,  
+                    "data": {"aoData" : JSON.stringify(aoData),"condition":JSON.stringify(condition)},  
+                    "success" : function(_data){
+                       var data = _data["aaData"];               
+                       var rows = [];
+                       var result = {};
+
+                       if (_data){
+                           if (_data == "error"){
+                                window.location.href='/system/toLogin';
+                           }
+                          for (i in data){
+                               var sysUser = new SysUser(
+                                    data[i].Id,
+                                    data[i].Name,
+                                    data[i].Email,
+                                    data[i].Remark,
+                                    data[i].CreateTime,
+                                    data[i].UpdateTime,
+                                    data[i].Status,
+                                    data[i].Oper,
+                                    data[i].GroupId
+                                );
+
+                               rows.push(sysUser);
+                           }
+                           var result = {
+                                         'aaData':rows,
+                                         'sEcho':_data["sEcho"],
+                                         'iTotalRecords':_data['iTotalRecords'],
+                                         'iTotalDisplayRecords':_data['iTotalDisplayRecords']
+                                        };
+                           }
+                       fnCallback(result);
+                }
+            });  
+        }     
+
+    
+        //类
+        function SysUser(id,name,email,remark,createTime,updateTime,status,oper,group){
+
+            var o = new Object();
+            o.id = id;
+            o.name = name;
+            o.email = email;
+            o.remark = remark;
+            o.createTime = createTime;
+            o.updateTime = updateTime;
+            o.status = status;
+            o.oper = oper;
+            o.group = group;
+            return o;
+        }   
+
+        function SysOper(name,url){
+            var o = new Object();
+            o.name = name;
+            o.url = url;
+            return o;
+        }
+
+
+    </script>
+   
+</body>
+</html>

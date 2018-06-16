@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link type="text/css" href="/static/bootstrap.min.css" rel="stylesheet">
+        <link type="text/css" href="/static/bootstrap-theme.min.css" rel="stylesheet">
+        <link type="text/css" href="/static/bootstrap-treeview.min.css" rel="stylesheet">
+        <link type="text/css" href="/static/bootstrap-datetimepicker.min.css" rel="stylesheet">
+        <link type="text/css" href="/static/global.css" rel="stylesheet">
+        <script type="text/javascript" src="/static/jquery.min.js"></script>
+        <script type="text/javascript" src="/static/bootstrap.min.js"></script>
+        <script type="text/javascript" src="/static/jquery.validate.min.js"></script>
+        <script type="text/javascript" src="/static/bootbox.min.js"></script>
+        <script type="text/javascript" src="/static/bootstrap-treeview.min.js"></script>
+        <script type="text/javascript" src="/static/bootstrap-datetimepicker.min.js"></script>
+        <script type="text/javascript" src="/static/bootstrap-datetimepicker.zh-CN.js"></script>
+        <script type="text/javascript" src="/static/menuTreeview.js"></script>
+    </head>
+    
+    <body>
+        <input type="hidden" id="parentMenuId" value="{{.}}">
+        <input type="hidden" id="hidden-id" >
+        <div class="container-fluid">
+            <div class="page-header">
+                <h4>
+                    <b>菜单管理</h4>
+            </div>
+            <div class="row">
+                <div class="col-sm-10">
+                    <div class="form-inline table_formnew">
+                        <div class="form-group">
+                            <label class="control-label">菜单名：</label>
+                            <input type="text" id="Name" class="form-control">
+                            <input type="hidden" id="Name_q" class="form-control" value="LIKE"></div>
+                        <div class="form-group">
+                            <label class="control-label">所属父菜单：</label>
+                            <select id="ParentId" name='ParentId' class="form-control">
+                                <option value=''>--请选择--</option></select>
+                            <input type="hidden" id="ParentId_q" class="form-control" value="EQ"></div>
+                        <div class="form-group">
+                            <label class="control-label">创建时间：</label>
+                            <input type="text" id="CreateTimeS" class="form-control form_datetime ">-
+                            <input type="text" id="CreateTimeE" class="form-control form_datetime">
+                            <input type="hidden" id="CreateTimeS_q" class="form-control" value="GT">
+                            <input type="hidden" id="CreateTimeE_q" class="form-control" value="LT"></div>
+                        <div class="form-group">
+                            <label class="control-label">修改时间：</label>
+                            <input type="text" id="UpdateTimeS" class="form-control form_datetime ">-
+                            <input type="text" id="UpdateTimeE" class="form-control form_datetime">
+                            <input type="hidden" id="UpdateTimeS_q" class="form-control" value="GT">
+                            <input type="hidden" id="UpdateTimeE_q" class="form-control" value="LT"></div>
+                        <div class="form-group" id="oper-btn">
+                            <button class="btn btn-primary search" title="查询" rel="tooltip">查询</button>
+                            <button class="btn btn-default" onclick="javascript:clearSearch();" title="清空" rel="tooltip">清空</button></div>
+                    </div>
+                    <div class="form-group" id="oper-btn"></div>
+                    <div class="form-group">
+                        <!-- <button class="btn btn-info" onclick='javascript:uncheckAll();'>全不选</button>
+                        <button class="btn btn-info" onclick='javascript:checkedAll();'>全选</button> -->
+                        <button class="btn btn-info" onclick='javascript:collapseAll();'>收起</button>
+                        <button class="btn btn-info" onclick='javascript:expandAll();'>展开</button></div>
+                    <div id="tree"></div>
+                </div>
+            </div>
+        </div>
+        <!-- edit model start -->
+        <form id="menuForm">
+            <div class="modal fade" id="menuModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">×</span></button>
+                            <h4 class="modal-title" id="menuModalLabel">新增</h4></div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="name" class="col-sm-4 control-label">菜单名称：</label>
+                                <input type="text" class="form-control" name="name" id="name" placeholder="菜单名称" required></div>
+                            <div class="form-group">
+                                <label for="url" class="col-sm-2 control-label">URL:</label>
+                                <input type="text" class="form-control" name="url" id="url" placeholder="自定义URL"></div>
+                            <div class="form-group">
+                                <label for="icon" class="col-sm-2 control-label">ICON:</label>
+                                <input type="text" class="form-control" name="icon" id="icon" placeholder="图标"></div>
+                            <div class="form-group">
+                                <label for="remark" class="col-sm-2 control-label">备注：</label>
+                                <input type="text" class="form-control" name="remark" id="remark" placeholder="备注"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <a class="btn btn-default" href="javascript:clear();" title="清空" rel="tooltip">清空</a>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            <button type="button" class="btn btn-primary" id="save">保存</button></div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <!-- edit model end -->
+
+        <!-- menu model start -->
+      <div class="modal fade" id="parentMenuModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">关联父菜单</h4></div>
+            <div class="modal-body">
+              <div id='my-parentMenus'></div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" id='contactParentMenu' onclick='javascript:confirmContactParentMenu();'>关联</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal" onclick='javascript:targetInitParentMenu();'>取消</button></div>
+          </div>
+        </div>
+      </div>
+      <!-- menu model end --></div>
+        <!-- message model start -->
+        <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">成功</h4></div>
+                    <div class="modal-body" id="success"></div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" >关闭</button></div>
+                </div>
+            </div>
+        </div>
+        <!-- message model end -->
+        <script type="text/javascript">
+
+
+            $(document).ready(function() {
+
+                var validateParam = {
+                    rules: {
+                        name: {
+                            required: true
+                        }
+                    },
+                    messages: {
+                        name: {
+                            required: $.format('菜单名称不能为空!')
+                        }
+                    },
+                    submitHandler: function(form) {
+                        return false;
+                    }
+                }
+
+                $('#menuForm').validate(validateParam);
+
+                initTreeMul();
+                
+                getOper();
+                initParentMenu();
+                $('.search').attr('onclick', 'javascript:search();');
+                getMenus();
+            })
+
+            //日历控件
+            $('.form_datetime').datetimepicker({
+                language: 'zh-CN',
+                weekStart: 1,
+                todayBtn: 1,
+                autoclose: 1,
+                todayHighlight: 1,
+                startView: 2,
+                forceParse: 0,
+                showMeridian: 1,
+                format: 'yyyy-mm-dd hh:mm:ss',
+                autoclose: false,
+                todayBtn: false,
+                pickerPosition: "bottom-top"
+            });
+
+            function confirmContactParentMenu(){
+                var pids = getParentMenuSelectIds();
+                var mainIds = $('#hidden-id').val();
+
+                //var isChild = checkIsParentContactChild(mainId, selectId);
+                $.post(
+                    '/system/menu/menuConfirmContactParentMenu',
+                    {pids:pids.join(','),mainIds:mainIds},
+                    function(_data){
+                      $('#parentMenuModal').modal('hide');
+                        operSuccess(_data);
+                    }
+                    )
+            }
+
+            function targetInitParentMenu(){
+                initParentMenu();
+            }
+
+            function toContactParentMenu(){
+
+                $('#my-parentMenus').treeview('enableAll', { silent: true });
+                var selects = $('#tree').treeview('getSelected');
+                if (selects.length == 0){
+                    bootbox.alert('请至少选择一项进行操作!');
+                    return;
+                }
+                
+                var pids = new Array();
+                var selectIds = new Array();
+                for (var i in selects){
+                    pids.push(selects[i].pid);
+                    selectIds.push(selects[i].id)
+                }
+
+                var is = checkIsSystemMenu(selectIds);
+                if (is){
+                  bootbox.alert('不可编辑系统菜单!');
+                  return;
+                }
+
+                $('#hidden-id').val(selectIds.join(','));
+
+                //initParentMenu();
+
+                setParentNodeSelected(pids,selectIds);
+                $('#parentMenuModal').modal('show',true);
+            }
+
+            function getMenus() {
+
+                //$('#MenuId').empty();
+                $.post('/system/menu/list',
+                function(_data) {
+                    // console.info(_data);
+                    for (i in _data) {
+                        var data = _data[i];
+                        var opt = new Option();
+                        opt.value = data.Id;
+                        opt.text = data.Name;
+                        $('#ParentId').append(opt);
+                    }
+                },
+                'json')
+            }
+
+            function checkIsSystemMenu(selectIds){
+              if (selectIds == '' || selectIds.length < 1){
+                return;
+              }
+
+              var systemMenus = ['0','1','2','3','4','5','6'];
+              var is = false;
+              for (i in systemMenus){
+                for (j in selectIds){
+                    if (selectIds[j] == systemMenus[i]){
+                        is = true;
+                        break;
+                    }
+                }
+              }
+
+              return is;
+            }
+
+            function clear() {
+                $('#name').val('');
+                $('#url').val('');
+                $('#icon').val('');
+                $('#remark').val('');
+            }
+
+            //清空
+            function clearSearch() {
+                $('#Name').val('');
+                $('#ParentName').val('');
+                $('#CreateTimeS').val('');
+                $('#CreateTimeE').val('');
+                $('#UpdateTimeS').val('');
+                $('#UpdateTimeE').val('');
+            }
+
+            function toAdd() {
+
+                clear();
+                $('#url').attr('disabled',false);
+                $('#menuModalLabel').html('新增');
+                $('#save').attr('onclick', 'javascript:add();');
+                $('#menuModal').modal('show', true);
+            }
+
+            function toEdit() {
+
+                var ids = '';
+                var nodes = $('#tree').treeview('getSelected');
+                var selectNodes = new Array();
+
+                for (var i = 0; i < nodes.length; i++) {
+                    ids = ids + nodes[i].id + ',';
+                }
+ 
+                if (ids != '') {
+                    ids = ids.substring(0, ids.length - 1);
+                    selectNodes = ids.split(',');
+                }
+
+                //console.info(selectNodes)
+                if (selectNodes.length == 0 || selectNodes.length > 1) {
+                    bootbox.alert('请选择一项进行操作!');
+                    return;
+                }
+
+                var is = checkIsSystemMenu(selectNodes[0]);
+                if (is){
+                  bootbox.alert('不可编辑系统菜单!');
+                  return;
+                }
+
+                $('#hidden-id').val(selectNodes[0]);
+
+                $.post(
+                    '/system/menu/getMenuById',
+                    {id:selectNodes[0]},
+                    function(_data){
+                        //console.info(_data);
+                        _data = $.parseJSON(_data);
+                        var name = _data[0].Name;
+                        var icon = _data[0].Icon;
+                        var url = _data[0].Url;
+                        var remark = _data[0].Remark;
+                        $('#name').val(name);
+                        $('#icon').val(icon);
+                        $('#url').val(url);
+                        $('#url').attr('disabled',true);
+                        $('#remark').val(remark);
+                        $('#menuModalLabel').html('编辑');
+                        $('#menuModal').modal('show',true);
+                        $('#save').attr('onclick','javascript:edit();');
+                    }      
+                    )
+
+            }
+
+            function add() {
+
+                submitForm('add');
+            }
+
+            function edit() {
+
+                submitForm('edit');
+            }
+
+            function del(){
+                var ids = '';
+                var selectNodes = $('#tree').treeview('getSelected');
+                var selectIds = new Array();
+
+                
+                for(var i in selectNodes){
+                    selectIds.push(selectNodes[i].id);
+                }
+
+                //console.info(selectNodes)
+                if (selectIds.length == 0) {
+                    bootbox.alert('请至少选择一项进行操作!');
+                    return;
+                }
+
+                var is = checkIsSystemMenu(selectIds);
+                if (is){
+                  bootbox.alert('不可编辑系统菜单!');
+                  return;
+                }
+
+
+                bootbox.confirm('确定删除' + selectNodes.length + '条数据吗?',function(r){
+                    if (r){
+                        $.post(
+                            '/system/menu/del',
+                            {ids:selectIds.join(',')},
+                            function(_data){
+                                operSuccess(_data);
+                            }
+                        )
+                    }
+                })
+
+                
+
+            }
+
+            function submitForm(action) {
+                var isOk = $('#menuForm').valid();
+
+                if (!isOk) {
+                    return;
+                }
+
+                if (action == 'add') {
+                    var name = $('#name').val();
+                    var url = $('#url').val();
+                    if (url == ''){
+                        url = '/system/function/undevelop';
+                    }
+                    var remark = $('#remark').val();
+                    var icon = $('#icon').val();
+
+                    $.post('/system/menu/add', {
+                        name: name,
+                        remark: remark,
+                        url: url,
+                        icon: icon
+                    },
+                    function(_data) {
+                        operSuccess(_data);
+                    },
+                    'json')
+                }
+
+                if (action == 'edit') {
+                    var name = $('#name').val();
+                    var icon = $('#icon').val();
+                    var remark = $('#remark').val();
+                    var id = $('#hidden-id').val();
+                    $.post(
+                        '/system/menu/edit',
+                        {id:id,name:name,icon:icon,remark:remark},
+                        function(_data){
+                            operSuccess(_data);
+                        },'json'
+                        )
+                }
+            }
+
+            function operSuccess(_data) {
+
+                isTimeOut(_data);
+
+                if (_data) {
+
+                    $('#success').html('成功操作' + _data + '条数据!');
+                } else {
+
+                    $('#success').html('操作失败!');
+                }
+
+                $('#menuModal').modal('hide');
+                $('#successModal').modal('show', true);
+                initTreeMul();
+                initParentMenu();
+            }
+
+            function isTimeOut(_data) {
+
+                if (_data == 'error') {
+                    window.location.href = '/system/toLogin';
+                }
+
+                return;
+            }
+
+            function checkedAll() {
+
+                $('#tree').treeview('checkAll', {
+                    silent: true
+                });
+                initTreeMul();
+            }
+
+            function uncheckAll() {
+                var nodes = $('#tree').treeview('getSelected', {
+                    silent: true
+                });
+
+                for (i in nodes){
+                    nodes[i].selected = true;
+                }
+                initTreeMul();
+            }
+
+            function expandAll() {
+                $('#tree').treeview('expandAll', {
+                    levels: 5,
+                    silent: true
+                });
+            }
+
+            function collapseAll() {
+
+                $('#tree').treeview('collapseAll', {
+                    silent: true
+                });
+            }
+
+            //获得操作权限
+            function getOper() {
+
+                var parentMenuId = $('#parentMenuId').val();
+                $.post('/system/getCurrentMenuOper', {
+                    parentMenuId: parentMenuId
+                },
+                function(_data) {
+                    if (_data) {
+                        var arr = [];
+                        for (i in _data) {
+                            o = new SysOper(_data[i].Name, _data[i].Url);
+                            arr[i] = o;
+                        }
+                        var temp = '';
+                        opers = arr;
+                        if (opers) {
+                            // console.info(opers);
+                            $(opers).each(function() {
+                                temp = temp + '<a class="btn btn-default" title="' + this.name + '" href="' + this.url + '">' + this.name + '</a>';
+                            });
+                            // console.info(temp);
+                            $('#oper-btn').append(temp);
+                        }
+                    }
+
+                },
+                'json')
+            }
+
+            function search() {
+
+                initTreeMul();
+                var condition = [];
+
+                if ($('#Name').val()) {
+                    condition.push({
+                        "name": "Name",
+                        "value": $('#Name').val()
+                    });
+                    condition.push({
+                        "name": "Name_q",
+                        "value": $('#Name_q').val()
+                    });
+                }
+
+                if ($('#ParentId').val()) {
+                    condition.push({
+                        "name": "ParentId",
+                        "value": $('#ParentId').val()
+                    });
+                    condition.push({
+                        "name": "ParentId_q",
+                        "value": $('#ParentId_q').val()
+                    });
+                }
+
+                if ($('#CreateTimeS').val()) {
+                    condition.push({
+                        "name": "CreateTime",
+                        "value": $('#CreateTimeS').val()
+                    });
+                    condition.push({
+                        "name": "CreateTime_q",
+                        "value": $('#CreateTimeS_q').val()
+                    });
+                }
+                if ($('#CreateTimeE').val()) {
+                    condition.push({
+                        "name": "CreateTime",
+                        "value": $('#CreateTimeE').val()
+                    });
+                    condition.push({
+                        "name": "CreateTime_q",
+                        "value": $('#CreateTimeE_q').val()
+                    });
+                }
+                if ($('#CreateTimeE').val() && $('#CreateTimeS').val()) {
+                    condition.push({
+                        "name": "CreateTime",
+                        "value": $('#CreateTimeS').val() + '@_data_@' + $('#CreateTimeE').val()
+                    });
+                    condition.push({
+                        "name": "CreateTime_q",
+                        "value": $('#CreateTimeS_q').val() + '@_data_@' + $('#CreateTimeE_q').val()
+                    });
+                }
+
+                if ($('#UpdateTimeS').val()) {
+                    condition.push({
+                        "name": "UpdateTime",
+                        "value": $('#UpdateTimeS').val()
+                    });
+                    condition.push({
+                        "name": "UpdateTime_q",
+                        "value": $('#UpdateTimeS_q').val()
+                    });
+                }
+                if ($('#UpdateTimeE').val()) {
+                    condition.push({
+                        "name": "UpdateTime",
+                        "value": $('#UpdateTimeE').val()
+                    });
+                    condition.push({
+                        "name": "UpdateTime_q",
+                        "value": $('#UpdateTimeE_q').val()
+                    });
+                }
+                if ($('#UpdateTimeE').val() && $('#UpdateTimeS').val()) {
+                    condition.push({
+                        "name": "UpdateTime",
+                        "value": $('#UpdateTimeS').val() + '@_data_@' + $('#UpdateTimeE').val()
+                    });
+                    condition.push({
+                        "name": "UpdateTime_q",
+                        "value": $('#UpdateTimeS_q').val() + '@_data_@' + $('#UpdateTimeE_q').val()
+                    });
+                }
+
+                //var param = {'iDisplayStart':-1,'iDisplayLength':-1,'iSortCol_0':-1,'mDataProp_0':'','sSortDir_0':''}
+                var aoData = new Array();
+                //aoData.push(param);
+                $.ajax({
+                    "dataType": 'json',
+                    "type": "POST",
+                    "url": '/system/menu/listByCondition',
+                    "data": {
+                        "aoData": JSON.stringify(aoData),
+                        "condition": JSON.stringify(condition)
+                    },
+                    "success": function(_data) {
+                        var data = _data["aaData"];
+                        handleSearchResult(data);
+                    }
+                });
+            }
+
+            function SysOper(name, url) {
+                var o = new Object();
+                o.name = name;
+                o.url = url;
+                return o;
+            }</script>
+    </body>
+
+</html>

@@ -1,0 +1,750 @@
+<!DOCTYPE html> 
+<html lang="en">
+   <head> 
+       <meta charset="utf-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1">
+       <link type="text/css" href="/static/bootstrap.min.css" rel="stylesheet">
+       <link type="text/css" href="/static/bootstrap-theme.min.css" rel="stylesheet">
+       <link type="text/css" href="/static/jquery.dataTables.min.css" rel="stylesheet">
+       <link type="text/css" href="/static/dataTables.bootstrap.min.css" rel="stylesheet">
+       <link type="text/css" href="/static/dataTables.jqueryui.min.js" rel="stylesheet">
+       <link type="text/css" href="/static/bootstrap-datetimepicker.min.css" rel="stylesheet">
+       <link type="text/css" href="/static/bootstrap-treeview.min.css" rel="stylesheet">
+       <link type="text/css" href="/static/global.css" rel="stylesheet">
+
+
+       <script type ="text/javascript" src="/static/jquery.min.js"></script>
+       <script type ="text/javascript" src="/static/bootstrap.min.js"></script>
+       <script type ="text/javascript" src="/static/jquery.dataTables.min.js"></script>
+       <script type ="text/javascript" src="/static/dataTables.bootstrap.min.js"></script>
+       <script type ="text/javascript" src="/static/bootstrap-datetimepicker.min.js"></script>
+       <script type ="text/javascript" src="/static/bootstrap-datetimepicker.zh-CN.js"></script>
+       <script type ="text/javascript" src="/static/jquery.validate.min.js"></script>
+       <script type ="text/javascript" src="/static/bootbox.min.js"></script>
+       <script type="text/javascript" src="/static/menuTreeview.js"></script>
+        <script type="text/javascript" src="/static/operTabs.js"></script>
+       <script type="text/javascript" src="/static/bootstrap-treeview.min.js"></script>
+
+   </head>
+<body>
+    <input type="hidden" id="hidden-id">
+    <input type="hidden" id="parentMenuId" value="{{.}}">
+    <div class="container-fluid">
+        <div class="page-header">
+            <h4><b>用户组/部门管理</h4>
+        </div>
+        <div class="row">
+                <div class="col-sm-10">
+                    <div class="box">
+                        <div class="box-content nopadding y_tableser">
+                                <div class="form-inline table_formnew">
+
+                                    <div  class="form-group">
+                                        <label class="control-label">组/部门名称：</label>
+                                        <input type="text" id="Name" class="form-control">
+                                        <input type="hidden"  id="Name_q" class="form-control" value="LIKE">
+                                    </div>
+
+                                    <div  class="form-group">
+                                        <label class="control-label">创建时间：</label>
+                                        <input type="text" id="CreateTimeS" class="form-control form_datetime "> - 
+                                        <input type="text"  id="CreateTimeE" class="form-control form_datetime">
+                                        <input type="hidden"  id="CreateTimeS_q" class="form-control" value="GT">
+                                        <input type="hidden"  id="CreateTimeE_q" class="form-control" value="LT">
+                                    </div>
+
+                                    <div  class="form-group">
+                                        <label class="control-label">修改时间：</label>
+                                        <input type="text" id="UpdateTimeS" class="form-control form_datetime "> - 
+                                        <input type="text"  id="UpdateTimeE" class="form-control form_datetime">
+                                        <input type="hidden"  id="UpdateTimeS_q" class="form-control" value="GT">
+                                        <input type="hidden"  id="UpdateTimeE_q" class="form-control" value="LT">
+                                    </div> 
+
+                                    <div class="form-group" id="oper-btn">
+                                        <button class="btn btn-primary search" title="查询" rel="tooltip">查询</button>
+                                        <button class="btn btn-default" onclick="javascript:clearSearch();" title="清空" rel="tooltip">清空</button>
+                                    </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <div class="table-responsive">
+	   <table class="table table-bordered table-hover table-nomargin table-striped dataTable dataTable-reorder" id="user_list_table">
+	       <thead>
+               <tr> 
+                    <th  class='with-checkbox'>
+                        <input type="checkbox" name="check_all" id="check_all">
+                    </th>
+    				<th width="25%"></th>
+    				<th width="25%"></th>
+    				<th width="25%"></th>
+    				<th width="25%"></th>
+               </tr>
+			</thead>
+			<tbody>
+			</tbody>
+	   </table>
+    </div> 
+
+    <!-- edit model start -->  
+    <form id="groupForm" method="post">
+        <div class="modal fade" id="groupModel" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">  
+            <div class="modal-dialog">  
+                <div class="modal-content">  
+                    <div class="modal-header">  
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span  
+                                aria-hidden="true">×</span></button>  
+                        <h4 class="modal-title" id="groupModalLabel">新增</h4>  
+                    </div>  
+                    <div class="modal-body">  
+                        <div class="form-group">
+                             <label for="name" class="col-sm-4 control-label">组/部门名称：</label>  
+                            <input type="text" class="form-control" id="name" name="name" placeholder="角色名称">  
+                        </div>   
+                        <div class="form-group">  
+                             <label for="remark" class="col-sm-2 control-label">备注：</label>
+                            <input type="text" class="form-control" name="remark" id="remark" placeholder="备注">  
+                        </div>    
+                    </div>  
+                    <div class="modal-footer">   
+                        <a  class="btn btn-default" href="javascript:clear();" title="清空" rel="tooltip">清空</a>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>  
+                        <button type="button" class="btn btn-primary" id="save">保存</button>  
+                    </div>
+                </div>  
+            </div>  
+        </div> 
+    </form>
+     <!-- edit model end --> 
+    <!-- message model start -->
+    <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">成功</h4>
+                </div>
+                <div class="modal-body" id="success"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- message model end -->
+    <!-- userGroupMenu model start -->
+    <div class="modal fade" id="userGroupMenuModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">关联菜单</h4></div>
+                <div class="modal-body">
+                    <div id='userGroupMenus'></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id='confirmContactMenu'>确定</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick='javascript:initContactMenu();'>取消</button></div>
+            </div>
+        </div>
+    </div>
+    <!-- userGroupMenu model end --></div>
+
+    <!-- userGroupOper model start -->
+    <div class="modal fade" id="userGroupOperModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">关联操作</h4></div>
+                <div class="modal-body">
+                    <div id='userGroupOpers'>
+                        
+
+                        <ul id="userGroupOpers-ul" class="nav nav-tabs">
+                        </ul>
+                        <div id="userGroupOpers-content" class="tab-content">       
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id='confirmContactOper'>确定</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" >取消</button></div>
+            </div>
+        </div>
+    </div>
+    <!-- userGroupOper model end --></div>
+
+</div>
+    <script type ="text/javascript">
+
+         
+         //条件查找
+         $('.search').click(function(){
+             query('seach');
+         });
+
+
+         //全选
+         $("#check_all").click(function(e) {
+                    $('input', table.fnGetNodes()).prop('checked', this.checked);
+             });
+        
+        //日历控件
+        $('.form_datetime').datetimepicker({
+            language:  'zh-CN',
+            weekStart: 1,
+            todayBtn:  1,
+            autoclose: 1,
+            todayHighlight: 1,
+            startView: 2,
+            forceParse: 0,
+            showMeridian: 1,
+            format : 'yyyy-mm-dd hh:mm:ss',
+            autoclose: false,
+            todayBtn: false,
+            pickerPosition: "bottom-top"
+        });
+
+        function toContactOper(){
+            var ids = '';
+
+            $('input[name="check"]:checkbox').each(function(){
+                if ($(this).is(':checked')){
+                    ids = ids + $(this).val() + ',';
+                }
+            })
+
+            if (ids == ''){
+                bootbox.alert('请选择一项进行操作!');
+                return;
+            }
+
+            ids = ids.substring(0, ids.length -1);
+            var arr = new Array();
+            arr = ids.split(',');
+
+            if (arr.length > 1){
+                bootbox.alert('请选择一项进行操作!');
+                return;
+            }
+             $('#hidden-id').val(arr[0]);
+             $('#confirmContactOper').attr('onclick', 'javascript:confirmContactOper();');
+            initUserGroupOperTabs(arr[0]);
+        }
+
+        function confirmContactOper(){
+            
+            var ids = '';
+            $('input[name="operCheck"]:checkbox').each(function(){
+                if ($(this).is(':checked')){
+                    ids = ids + $(this).val() + ',';
+                }
+            })
+
+            if (ids != ''){
+                ids = ids.substring(0 , ids.length - 1);
+            }
+            var id = $('#hidden-id').val();
+
+            $.post(
+                '/system/userGroup/userGroupConfirmOper',
+                {operIds:ids,userGroupId:id},
+                function(_data){
+
+                    $('#userGroupOperModal').modal('hide');
+                    operSuccess(_data);
+                }
+                )
+        }
+
+        function initContactMenu(){
+            initUserGroupMenusTreeMul();
+        }
+
+        function toContactMenu(){
+
+            var ids = '';
+
+            $('input[name="check"]:checkbox').each(function(){
+                if ($(this).is(':checked')){
+                    ids = ids + $(this).val() + ',';
+                }
+            })
+
+            if (ids == ''){
+                bootbox.alert('请选择一项进行操作!');
+                return;
+            }
+
+            ids = ids.substring(0, ids.length -1);
+            var arr = new Array();
+            arr = ids.split(',');
+
+            if (arr.length > 1){
+                bootbox.alert('请选择一项进行操作!');
+                return;
+            }
+             $('#hidden-id').val(arr[0]);
+                
+            $.post('/system/userGroup/userGroupToContactMenu', {
+                id: arr[0]
+            },
+            function(_data) {
+                //console.info(_data);
+                setUserGroupMenuNodesSelected(_data);
+                $('#confirmContactMenu').attr('onclick', 'javascript:confirmContactMenu();');
+                $('#userGroupMenuModal').modal('show', true);
+            },
+            'json')
+        }
+
+         function confirmContactMenu() {
+
+                var menuIds = getUserGroupSelectNodeIds();
+                var userGroupId = $('#hidden-id').val();
+                //alert(userGroupId);
+                //console.info(menuIds);
+                $.post('/system/userGroup/userGroupConfirmContactMenu', {
+                    userGroupId: userGroupId,
+                    menuIds: menuIds
+                },
+                function(_data) {
+                    $('#userGroupMenuModal').modal('hide');
+                    operSuccess(_data);
+                },
+                'json')
+            }
+       
+        //to add
+        function toAdd(){
+            clear();
+            $('#save').attr('onclick','javascript:add();');
+            $('#groupModel').modal('show',true);
+        }
+
+        //edit
+        function toEdit(){
+            var ids = '';
+
+            $('input[name="check"]:checkbox').each(function(){
+                if ($(this).is(':checked')){
+                   ids = ids + $(this).val() + ',';
+                }
+            })
+
+             var arr = new Array();
+
+             if (ids != ''){
+                ids = ids.substring(0, ids.length -1);
+                arr = ids.split(',');
+             }
+
+             if (arr.length == 0 || arr.length > 1){
+                bootbox.alert('请选择一项进行操作!');
+                return;
+             }
+
+             $('#save').attr('onclick','javascript:edit();');
+             $.post(
+                '/system/userGroup/getUserGroupById',
+                {id:arr[0]},
+                function(_data){
+                    //console.info(_data);
+                    var name = _data[0].Name;
+                    var remark = _data[0].Remark;
+                    var id = _data[0].Id;
+
+                    $('#hidden-id').val(id);
+                    $('#name').val(name);
+                    $('#')
+                    $('#remark').val(remark);
+                    $('#groupModalLabel').html('编辑');
+                    $('#groupModel').modal('show',true);
+                },'json'
+                )
+        }
+
+        function submitForm(action){
+            var isOk = $('#groupForm').valid();
+            if (!isOk){
+                return;
+            }
+
+            if (action =='add'){
+                var name = $('#name').val();
+                var remark = $('#remark').val();
+
+                $.post(
+                    '/system/userGroup/add',
+                    {name:name,remark:remark},
+                    function(_data){
+                        operSuccess(_data);
+                    },'json'
+                    )
+            }
+            if (action == 'edit'){
+
+                var name = $('#name').val();
+                var remark = $('#remark').val();
+                var id = $('#hidden-id').val();
+
+                $.post(
+                    '/system/userGroup/edit',
+                    {name:name,id:id,remark:remark},
+                    function(_data){
+                        operSuccess(_data);
+                    },'json'
+                    )
+            }
+        }
+
+        //edit
+        function edit(){
+            submitForm('edit');
+        }
+  
+        function add(){
+            submitForm('add');
+        }
+        //del
+        function del(){
+             var ids = '';
+             $('input[name="check"]:checkbox').each(function(){
+                if ($(this).is(':checked')){
+                    ids = ids + $(this).val() + ',';
+                }
+             })
+
+             if (ids == ''){
+                bootbox.alert('请至少选择一项进行操作!');
+                return;
+             }
+
+             var arr = new Array();
+             ids = ids.substring(0, ids.length -1);
+             arr = ids.split(',');
+             bootbox.setLocale("zh_CN");
+             bootbox.confirm('确定删除' + arr.length + '条数据吗?',function(r){
+                if (r){
+                    var isDelUser = "0";
+                    bootbox.confirm('是否将该用户组/部门下的所有用户一并删除?',function(r2){
+                        if (r2){
+                            isDelUser = "1";
+                        }
+                        $.post(
+                        '/system/userGroup/del',
+                        {ids:ids,isDelUser:isDelUser},
+                        function(_data){
+                            isTimeOut(_data);
+                            var delGroupN = _data.delGroupN;
+                            var delUserN = _data.delUserN;
+
+                            if (isDelUser == "0"){
+                                $('#success').html('成功删除'+delGroupN+'条用户组/部门数据!  修改'+ delUserN + '条用户数据状态!');
+                                $('#successModal').modal('show',true);
+                            }else{
+                                $('#success').html('成功删除：'+delGroupN+'条用户组/部门数据!  '+ delUserN + '条用户数据!');
+                                $('#successModal').modal('show',true);
+                            }
+
+                            table.fnDraw();
+                        },'json'
+                        )
+                    })
+                    
+                }
+             })
+        }
+
+        function clear(){
+            $('#name').val('');
+            $('#remark').val('');
+        }
+
+        function operSuccess(_data){
+
+            isTimeOut(_data);
+            $('#groupModel').modal('hide');
+            $('#successModal').modal('show',true);
+
+            if (_data){
+                $('#success').html('成功操作' + _data + '条数据');
+            }else{
+                $('#success').html('操作失败!');
+            }
+
+            table.fnDraw();
+        }
+
+       function isTimeOut(_data){
+          if (_data == 'error'){
+            window.location.href="/system/toLogin";
+          }
+
+          return;
+       }
+        //初始化
+        $(document).ready(function() {
+
+            var validateParam = {
+                rules:{
+                    name:{required:true}
+                },
+                messages:{
+                    name:{required:$.format('用户组名称不能为空')}
+                },
+                submitHandler:function(form){
+                    return false;
+                }
+            }
+
+            $('#groupForm').validate(validateParam);
+            query('inittable');
+            getOper();
+            initUserGroupMenusTreeMul();
+        })
+
+        function getOper(){
+            var parentMenuId = $('#parentMenuId').val();
+            //alert(parentMenuId);
+             $.post(
+                    '/system/getCurrentMenuOper',
+                    {parentMenuId:parentMenuId},
+                    function(_data){
+                        if (_data){
+                            var arr = [];
+                            for (i in _data){
+                                o = new SysOper(_data[i].Name,_data[i].Url);
+                                arr[i] = o;
+                            }
+                            var temp = '';
+                            opers = arr;
+                            if (opers){
+                                //console.info(opers);
+                                $(opers).each(function(){
+                                 temp = temp + '<a class="btn btn-default" title="'+this.name+'" href="'+this.url+'">'+this.name+'</a>';
+                                });
+                               // console.info(temp);
+                                $('#oper-btn').append(temp);
+                            }
+                        }
+                        
+                    },'json'
+                )
+        }
+  
+
+        var table = null;
+        
+        //定义表格字段和数据源
+        function query(tag){
+            if (table == null){
+                if ($('.dataTable').length > 0) {
+                    $('.dataTable').each(function(){
+                        var opt = {
+                                    "bProcessing" : true, //DataTables载入数据时，是否显示‘进度’提示  
+                                    "bServerSide" : true, //是否启动服务器端数据导入  
+                                    "bStateSave" : true, //是否打开客户端状态记录功能,此功能在ajax刷新纪录的时候不会将个性化设定回复为初始化状态  
+                                    "bJQueryUI" : true, //是否使用 jQury的UI theme    
+                                    "aLengthMenu" : [5, 10, 20, 40, 60], //更改显示记录数选项  
+                                    "iDisplayLength" : 10, //默认显示的记录数  
+                                    "bAutoWidth" : true, //是否自适应宽度  
+                                    //"bScrollInfinite" : false, //是否启动初始化滚动条  
+                                    "bScrollCollapse" : true, //是否开启DataTables的高度自适应，当数据条数不够分页数据条数的时候，插件高度是否随数据条数而改变  
+                                    "bPaginate" : true, //是否显示（应用）分页器  
+                                    "bInfo" : true, //是否显示页脚信息，DataTables插件左下角显示记录数  
+                                    "sPaginationType" : "full_numbers", //详细分页组，可以支持直接跳转到某页  
+                                    "bSort" : true, //是否启动各个字段的排序功能  
+                                    "aaSorting" : [[1, "asc"]], //默认的排序方式，第2列，升序排列  
+                                    "bFilter" : true, //是否启动过滤、搜索功能  
+
+
+
+                                    "oLanguage": { //国际化配置  
+                                                    "sProcessing" : "正在获取数据，请稍后...",    
+                                                    "sLengthMenu" : "显示 _MENU_ 条",    
+                                                    "sZeroRecords" : "没有您要搜索的内容",    
+                                                    "sInfo" : "从 _START_ 到  _END_ 条记录 总记录数为 _TOTAL_ 条",    
+                                                    "sInfoEmpty" : "记录数为0",    
+                                                    "sInfoFiltered" : "(全部记录数 _MAX_ 条)",    
+                                                    "sInfoPostFix" : "",    
+                                                    "sSearch" : "查询",    
+                                                      
+                                                    "oPaginate": {    
+                                                        "sFirst" : "第一页",    
+                                                        "sPrevious" : "上一页",    
+                                                        "sNext" : "下一页",    
+                                                        "sLast" : "最后一页"    
+                                                    }  
+                                                },  
+                                    'sDom': "rtlip",
+                                    'aoColumnDefs': [{
+                                        'bSortable': false,
+                                        'aTargets': [0, 1, 2, 3]                
+                                    }], 
+
+                                    "aoColumns" : [{
+                                                    "mDataProp":"checkbox" ,
+                                                    "sDefaultContent":"",
+                                                    'bSortable': false,
+                                                    "fnRender": function(obj) {
+
+                                                        if (obj.aData.name != '超级用户组'){
+                                                            var sReturn = "<input  type='checkbox' name='check' value='"+obj.aData.id+"' style='margin-left:12px'/>";
+                                                         return sReturn;
+                                                        }
+                                                      
+                                                        }
+                                                    }, {  
+                                                        "mDataProp" : "name",  
+                                                        "sTitle" : "组/部门名称",  
+                                                        "sDefaultContent" : "",  
+                                                        "sClass" : "center"  
+                                                    }, {  
+                                                        "mDataProp" : "createTime",  
+                                                        "sTitle" : "创建时间",  
+                                                        "sDefaultContent" : "",  
+                                                        "sClass" : "center"  
+                                                    }, {  
+                                                        "mDataProp" : "updateTime",  
+                                                        "sTitle" : "修改时间",  
+                                                        "sDefaultContent" : "",  
+                                                        "sClass" : "center"  
+                                                    }, {  
+                                                        "mDataProp" : "remark",  
+                                                        "sTitle" : "备注",  
+                                                        "sDefaultContent" : "",  
+                                                        "sClass" : "center" ,
+                                                        'bSortable': false 
+                                                    }],
+                                     
+                                    "bServerSide" : true, //是否启动服务器端数据导入 
+                                    "sAjaxSource" : '/system/userGroup/list',  
+                                    //服务器端，数据回调处理  
+                                    "fnServerData" : retrieveData,      
+                                }
+                        table = $(this).dataTable(opt);
+                    });
+                }
+            }
+            if('inittable' != tag) {
+                table.fnDraw();
+            }
+
+        }
+
+        //清空
+         function clearSearch(){
+             $('#Name').val('');
+             $('#CreateTimeS').val('');
+             $('#CreateTimeE').val('');
+             $('#UpdateTimeS').val('');
+             $('#UpdateTimeE').val('');
+         }
+
+         //处理服务器数据
+        function retrieveData(sSource,aoData,fnCallback) {
+
+            var condition = [];
+          
+            if ($('#Name').val()){
+               condition.push({"name":"Name","value":$('#Name').val()});
+               condition.push({"name":"Name_q","value":$('#Name_q').val()});
+            }
+
+            if ($('#CreateTimeS').val()){
+                condition.push({"name":"CreateTime","value":$('#CreateTimeS').val()});
+                condition.push({"name":"CreateTime_q","value":$('#CreateTimeS_q').val()});
+            }
+            if ($('#CreateTimeE').val()){
+                condition.push({"name":"CreateTime","value":$('#CreateTimeE').val()});
+                condition.push({"name":"CreateTime_q","value":$('#CreateTimeE_q').val()});
+            }
+            if ($('#CreateTimeE').val()  && $('#CreateTimeS').val() ){
+                condition.push({"name":"CreateTime","value":$('#CreateTimeS').val()+'@_data_@'+$('#CreateTimeE').val()});
+                condition.push({"name":"CreateTime_q","value":$('#CreateTimeS_q').val()+'@_data_@'+$('#CreateTimeE_q').val()});
+            }
+
+            if ($('#UpdateTimeS').val()){
+                condition.push({"name":"UpdateTime","value":$('#UpdateTimeS').val()});
+                condition.push({"name":"UpdateTime_q","value":$('#UpdateTimeS_q').val()});
+            }
+            if ($('#UpdateTimeE').val()){
+                condition.push({"name":"UpdateTime","value":$('#UpdateTimeE').val()});
+                condition.push({"name":"UpdateTime_q","value":$('#UpdateTimeE_q').val()});
+            }
+            if ($('#UpdateTimeE').val() && $('#UpdateTimeS').val()){
+                condition.push({"name":"UpdateTime","value":$('#UpdateTimeS').val()+'@_data_@'+$('#UpdateTimeE').val()});
+                condition.push({"name":"UpdateTime_q","value":$('#UpdateTimeS_q').val()+'@_data_@'+$('#UpdateTimeE_q').val()});
+            }
+ 
+             $.ajax({  
+                    "dataType" : 'json',  
+                    "type" : "POST",  
+                    "url" : sSource,  
+                    "data": {"aoData" : JSON.stringify(aoData),"condition":JSON.stringify(condition)},  
+                    "success" : function(_data){
+                       var data = _data["aaData"];               
+                       var rows = [];
+                       var result = {};
+
+                       if (_data){
+                           if (_data == "error"){
+                                window.location.href='/system/toLogin';
+                           }
+                          for (i in data){
+                               var sysUserGroup = new SysUserGroup(
+                                    data[i].Id,
+                                    data[i].Name,
+                                    data[i].Remark,
+                                    data[i].CreateTime,
+                                    data[i].UpdateTime,
+                                    data[i].Status,
+                                    data[i].Oper
+                                );
+
+                               rows.push(sysUserGroup);
+                           }
+                           var result = {
+                                         'aaData':rows,
+                                         'sEcho':_data["sEcho"],
+                                         'iTotalRecords':_data['iTotalRecords'],
+                                         'iTotalDisplayRecords':_data['iTotalDisplayRecords']
+                                        };
+                           }
+                       fnCallback(result);
+                }
+            });  
+        }     
+
+    
+        //类
+        function SysUserGroup(id,name,remark,createTime,updateTime){
+
+            var o = new Object();
+            o.id = id;
+            o.name = name;
+            o.remark = remark;
+            o.createTime = createTime;
+            o.updateTime = updateTime;
+            return o;
+        }   
+
+        function SysOper(name,url){
+            var o = new Object();
+            o.name = name;
+            o.url = url;
+            return o;
+        }
+
+
+
+    </script>
+   
+</body>
+</html>
